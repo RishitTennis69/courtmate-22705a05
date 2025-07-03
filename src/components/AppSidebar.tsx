@@ -44,7 +44,7 @@ export function AppSidebar() {
   const isAdmin = user?.email === 'krish.s.grover@gmail.com'
 
   return (
-    <Sidebar className={state === "collapsed" ? "w-14" : "w-60"} collapsible>
+    <Sidebar className={state === "collapsed" ? "w-14" : "w-60"} collapsible="icon">
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">

@@ -1,6 +1,6 @@
 
 import { useState } from "react"
-import { Send, Search, MoreHorizontal } from "lucide-react"
+import { Send, Search, MoreHorizontal, MessageSquare } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
