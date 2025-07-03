@@ -1,4 +1,3 @@
-
 import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -19,6 +18,7 @@ import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AppSidebar } from "./components/AppSidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
+import ProfileCompletionCheck from "./components/ProfileCompletionCheck";
 
 const queryClient = new QueryClient();
 
@@ -69,7 +69,9 @@ const AppContent = () => {
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <ProfileCompletionCheck>
+                    <Dashboard />
+                  </ProfileCompletionCheck>
                 </ProtectedRoute>
               } 
             />
@@ -77,7 +79,9 @@ const AppContent = () => {
               path="/find-players" 
               element={
                 <ProtectedRoute>
-                  <FindPlayers />
+                  <ProfileCompletionCheck>
+                    <FindPlayers />
+                  </ProfileCompletionCheck>
                 </ProtectedRoute>
               } 
             />
@@ -85,7 +89,9 @@ const AppContent = () => {
               path="/matches" 
               element={
                 <ProtectedRoute>
-                  <Matches />
+                  <ProfileCompletionCheck>
+                    <Matches />
+                  </ProfileCompletionCheck>
                 </ProtectedRoute>
               } 
             />
@@ -93,7 +99,9 @@ const AppContent = () => {
               path="/messages" 
               element={
                 <ProtectedRoute>
-                  <Messages />
+                  <ProfileCompletionCheck>
+                    <Messages />
+                  </ProfileCompletionCheck>
                 </ProtectedRoute>
               } 
             />
@@ -101,7 +109,9 @@ const AppContent = () => {
               path="/circles" 
               element={
                 <ProtectedRoute>
-                  <Circles />
+                  <ProfileCompletionCheck>
+                    <Circles />
+                  </ProfileCompletionCheck>
                 </ProtectedRoute>
               } 
             />
@@ -109,7 +119,9 @@ const AppContent = () => {
               path="/admin" 
               element={
                 <ProtectedRoute>
-                  <Admin />
+                  <ProfileCompletionCheck>
+                    <Admin />
+                  </ProfileCompletionCheck>
                 </ProtectedRoute>
               } 
             />

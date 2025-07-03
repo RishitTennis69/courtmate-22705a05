@@ -21,6 +21,19 @@ import {
   Clock,
   Zap
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import SkillQuiz from "@/components/SkillQuiz";
+import UTRConverter from "@/components/UTRConverter";
+import CalendarAvailability from "@/components/CalendarAvailability";
+
+interface AvailabilitySlot {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  is_preferred: boolean;
+}
 
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -31,18 +44,23 @@ const Onboarding = () => {
     playingStyle: "",
     experience: "",
     availability: "",
-    goals: ""
+    goals: "",
+    ntrpRating: 0,
+    ratingMethod: "" // "quiz" or "utr"
   });
+  const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlot[]>([]);
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const totalSteps = 5;
+  const totalSteps = 7; // Increased for new components
   const progress = (currentStep / totalSteps) * 100;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      navigate("/dashboard");
+      await completeOnboarding();
     }
   };
 
@@ -56,37 +74,76 @@ const Onboarding = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const steps = [
-    {
-      title: "Personal Info",
-      description: "Tell us about yourself",
-      icon: User,
-      color: "from-blue-400 to-purple-500"
-    },
-    {
-      title: "Location & Preferences", 
-      description: "Where do you like to play?",
-      icon: MapPin,
-      color: "from-emerald-400 to-teal-500"
-    },
-    {
-      title: "Playing Style",
-      description: "What's your tennis style?",
-      icon: Target,
-      color: "from-orange-400 to-red-500"
-    },
-    {
-      title: "Skill Assessment",
-      description: "Help us understand your level",
-      icon: Trophy,
-      color: "from-yellow-400 to-orange-500"
-    },
-    {
-      title: "Availability",
-      description: "When do you prefer to play?",
-      icon: Calendar,
-      color: "from-purple-400 to-pink-500"
+  const handleSkillQuizComplete = (ntrpRating: number) => {
+    setFormData(prev => ({ ...prev, ntrpRating, ratingMethod: "quiz" }));
+    handleNext();
+  };
+
+  const handleUTRConversionComplete = (ntrpRating: number) => {
+    setFormData(prev => ({ ...prev, ntrpRating, ratingMethod: "utr" }));
+    handleNext();
+  };
+
+  const handleAvailabilitySet = (slots: AvailabilitySlot[]) => {
+    setAvailabilitySlots(slots);
+    handleNext();
+  };
+
+  const completeOnboarding = async () => {
+    try {
+      // Update user profile
+      const { error: profileError } = await supabase
+        .from('user_profiles')
+        .update({
+          full_name: formData.name,
+          age: parseInt(formData.age),
+          location: formData.location,
+          playing_style: formData.playingStyle,
+          current_rating: formData.ntrpRating,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user?.id);
+
+      if (profileError) throw profileError;
+
+      // Save availability slots
+      if (availabilitySlots.length > 0) {
+        const { error: availabilityError } = await supabase
+          .from('user_availability')
+          .insert(
+            availabilitySlots.map(slot => ({
+              user_id: user?.id,
+              ...slot
+            }))
+          );
+
+        if (availabilityError) throw availabilityError;
+      }
+
+      toast({
+        title: "Profile Complete!",
+        description: "Welcome to CourtMate! Let's find you some tennis partners.",
+      });
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.error('Error completing onboarding:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete profile setup. Please try again.",
+        variant: "destructive",
+      });
     }
+  };
+
+  const steps = [
+    { title: "Personal Info", description: "Tell us about yourself", icon: User, color: "from-blue-400 to-purple-500" },
+    { title: "Location", description: "Where do you play?", icon: MapPin, color: "from-emerald-400 to-teal-500" },
+    { title: "Rating Method", description: "How to assess your skill?", icon: Target, color: "from-orange-400 to-red-500" },
+    { title: "Skill Assessment", description: "Determine your NTRP level", icon: Trophy, color: "from-yellow-400 to-orange-500" },
+    { title: "Playing Style", description: "Your tennis preferences", icon: Target, color: "from-purple-400 to-pink-500" },
+    { title: "Availability", description: "When do you play?", icon: Calendar, color: "from-green-400 to-blue-500" },
+    { title: "Complete", description: "Finish your profile", icon: CheckCircle, color: "from-emerald-400 to-green-500" }
   ];
 
   const renderStepContent = () => {
@@ -159,6 +216,50 @@ const Onboarding = () => {
               <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Target className="w-8 h-8 text-white" />
               </div>
+              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Rate Your Skills</h2>
+              <p className="text-gray-600 text-lg">Choose how you'd like to determine your skill level</p>
+            </div>
+            
+            <RadioGroup value={formData.ratingMethod} onValueChange={(value) => updateFormData("ratingMethod", value)}>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3 p-6 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
+                  <RadioGroupItem value="quiz" id="quiz" />
+                  <div className="flex-1">
+                    <Label htmlFor="quiz" className="font-semibold text-gray-900 cursor-pointer text-lg">
+                      Take NTRP Skill Quiz
+                    </Label>
+                    <p className="text-sm text-gray-600">Answer questions about your tennis skills and experience</p>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-3 p-6 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
+                  <RadioGroupItem value="utr" id="utr" />
+                  <div className="flex-1">
+                    <Label htmlFor="utr" className="font-semibold text-gray-900 cursor-pointer text-lg">
+                      Convert UTR Rating
+                    </Label>
+                    <p className="text-sm text-gray-600">I already have a UTR rating to convert to NTRP</p>
+                  </div>
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
+        );
+
+      case 4:
+        if (formData.ratingMethod === "quiz") {
+          return <SkillQuiz onQuizComplete={handleSkillQuizComplete} />;
+        } else if (formData.ratingMethod === "utr") {
+          return <UTRConverter onConversionComplete={handleUTRConversionComplete} />;
+        }
+        return null;
+
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Target className="w-8 h-8 text-white" />
+              </div>
               <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Playing Style</h2>
               <p className="text-gray-600 text-lg">What describes your tennis style best?</p>
             </div>
@@ -186,75 +287,46 @@ const Onboarding = () => {
           </div>
         );
 
-      case 4:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Trophy className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Skill Level</h2>
-              <p className="text-gray-600 text-lg">How would you rate your tennis skills?</p>
-            </div>
-            
-            <RadioGroup value={formData.experience} onValueChange={(value) => updateFormData("experience", value)}>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[
-                  { value: "beginner", label: "Beginner", desc: "NTRP 1.0-2.5", stars: 1 },
-                  { value: "intermediate", label: "Intermediate", desc: "NTRP 3.0-3.5", stars: 3 },
-                  { value: "advanced", label: "Advanced", desc: "NTRP 4.0-4.5", stars: 4 },
-                  { value: "expert", label: "Expert", desc: "NTRP 5.0+", stars: 5 }
-                ].map((level) => (
-                  <div key={level.value} className="flex items-center space-x-3 p-6 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
-                    <RadioGroupItem value={level.value} id={level.value} />
-                    <div className="flex-1">
-                      <Label htmlFor={level.value} className="font-semibold text-gray-900 cursor-pointer text-lg">
-                        {level.label}
-                      </Label>
-                      <p className="text-sm text-gray-600 mb-2">{level.desc}</p>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className={`w-4 h-4 ${i < level.stars ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </RadioGroup>
-          </div>
-        );
+      case 6:
+        return <CalendarAvailability onAvailabilitySet={handleAvailabilitySet} />;
 
-      case 5:
+      case 7:
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Calendar className="w-8 h-8 text-white" />
+              <div className="w-16 h-16 bg-gradient-to-r from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-8 h-8 text-white" />
               </div>
-              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">When do you play?</h2>
-              <p className="text-gray-600 text-lg">Tell us your preferred playing times</p>
+              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Profile Complete!</h2>
+              <p className="text-gray-600 text-lg">Ready to find your tennis partners?</p>
             </div>
-            
-            <RadioGroup value={formData.availability} onValueChange={(value) => updateFormData("availability", value)}>
-              <div className="space-y-3">
-                {[
-                  { value: "morning", label: "Morning (6 AM - 12 PM)", icon: "🌅" },
-                  { value: "afternoon", label: "Afternoon (12 PM - 6 PM)", icon: "☀️" },
-                  { value: "evening", label: "Evening (6 PM - 10 PM)", icon: "🌆" },
-                  { value: "weekend", label: "Weekends Only", icon: "🏖️" },
-                  { value: "flexible", label: "Flexible - Anytime", icon: "⏰" }
-                ].map((time) => (
-                  <div key={time.value} className="flex items-center space-x-4 p-4 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
-                    <RadioGroupItem value={time.value} id={time.value} />
-                    <span className="text-2xl">{time.icon}</span>
-                    <Label htmlFor={time.value} className="font-semibold text-gray-900 cursor-pointer text-lg">
-                      {time.label}
-                    </Label>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between">
+                    <span className="font-medium">Name:</span>
+                    <span>{formData.name}</span>
                   </div>
-                ))}
-              </div>
-            </RadioGroup>
+                  <div className="flex justify-between">
+                    <span className="font-medium">NTRP Rating:</span>
+                    <Badge>{formData.ntrpRating}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Location:</span>
+                    <span>{formData.location}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Playing Style:</span>
+                    <span>{formData.playingStyle}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium">Availability Slots:</span>
+                    <span>{availabilitySlots.length} time slots</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         );
 
@@ -270,13 +342,13 @@ const Onboarding = () => {
         <div className="text-center mb-8">
           <Badge className="mb-4 bg-emerald-100 text-emerald-700 px-4 py-2 font-medium">
             <Zap className="mr-2 h-4 w-4" />
-            Quick Setup
+            Enhanced Setup
           </Badge>
           <h1 className="font-bricolage text-4xl font-bold text-gray-900 mb-2">
             Let's set up your profile
           </h1>
           <p className="text-gray-600 text-lg mb-6">
-            This will help us match you with the perfect tennis partners
+            Complete assessment to get the best tennis partner matches
           </p>
           
           {/* Progress Bar */}
@@ -290,8 +362,8 @@ const Onboarding = () => {
         </div>
 
         {/* Steps Indicator */}
-        <div className="flex justify-center mb-12">
-          <div className="flex items-center space-x-4">
+        <div className="flex justify-center mb-12 overflow-x-auto">
+          <div className="flex items-center space-x-2">
             {steps.map((step, index) => {
               const stepNumber = index + 1;
               const isActive = stepNumber === currentStep;
@@ -300,18 +372,18 @@ const Onboarding = () => {
               return (
                 <div key={stepNumber} className="flex items-center">
                   <div className={`
-                    w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300
+                    w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300
                     ${isActive ? `bg-gradient-to-r ${step.color} shadow-lg scale-110` : 
                       isCompleted ? 'bg-emerald-500' : 'bg-gray-200'}
                   `}>
                     {isCompleted ? (
-                      <CheckCircle className="w-6 h-6 text-white" />
+                      <CheckCircle className="w-5 h-5 text-white" />
                     ) : (
-                      <step.icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-gray-500'}`} />
+                      <step.icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-500'}`} />
                     )}
                   </div>
                   {index < steps.length - 1 && (
-                    <div className={`w-12 h-1 mx-2 rounded-full transition-all duration-300 ${
+                    <div className={`w-8 h-1 mx-1 rounded-full transition-all duration-300 ${
                       stepNumber < currentStep ? 'bg-emerald-500' : 'bg-gray-200'
                     }`} />
                   )}
@@ -323,37 +395,45 @@ const Onboarding = () => {
 
         {/* Main Card */}
         <Card className="glass-card border-0 shadow-2xl max-w-2xl mx-auto">
-          <CardContent className="p-12">
+          <CardContent className="p-8">
             {renderStepContent()}
           </CardContent>
         </Card>
 
         {/* Navigation */}
-        <div className="flex justify-between items-center mt-8 max-w-2xl mx-auto">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={currentStep === 1}
-            className="px-8 py-3 text-lg border-2"
-          >
-            <ArrowLeft className="mr-2 h-5 w-5" />
-            Previous
-          </Button>
-          
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Step {currentStep} of {totalSteps}
-            </p>
+        {currentStep !== 4 && ( // Skip navigation on quiz/utr steps as they handle their own
+          <div className="flex justify-between items-center mt-8 max-w-2xl mx-auto">
+            <Button
+              variant="outline"
+              onClick={handlePrevious}
+              disabled={currentStep === 1}
+              className="px-8 py-3 text-lg border-2"
+            >
+              <ArrowLeft className="mr-2 h-5 w-5" />
+              Previous
+            </Button>
+            
+            <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Step {currentStep} of {totalSteps}
+              </p>
+            </div>
+            
+            <Button
+              onClick={handleNext}
+              disabled={
+                (currentStep === 1 && (!formData.name || !formData.age)) ||
+                (currentStep === 2 && !formData.location) ||
+                (currentStep === 3 && !formData.ratingMethod) ||
+                (currentStep === 5 && !formData.playingStyle)
+              }
+              className="px-8 py-3 text-lg gradient-primary text-white shadow-lg hover:shadow-xl transition-all duration-300"
+            >
+              {currentStep === totalSteps ? "Complete Setup" : "Next Step"}
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
           </div>
-          
-          <Button
-            onClick={handleNext}
-            className="px-8 py-3 text-lg gradient-primary text-white shadow-lg hover:shadow-xl transition-all duration-300"
-          >
-            {currentStep === totalSteps ? "Complete Setup" : "Next Step"}
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </div>
+        )}
       </div>
     </div>
   );
