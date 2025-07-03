@@ -11,6 +11,7 @@ import { Loader2 } from "lucide-react";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
+import Matches from "./pages/Matches";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,14 @@ const AppContent = () => {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/matches" 
+        element={
+          <ProtectedRoute>
+            <Matches />
           </ProtectedRoute>
         } 
       />

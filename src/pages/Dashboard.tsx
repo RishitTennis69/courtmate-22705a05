@@ -1,294 +1,306 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
-  Users, 
   Calendar, 
+  Users, 
   Trophy, 
-  TrendingUp, 
+  Settings, 
   MapPin, 
-  Clock, 
   Star,
-  Plus,
-  MessageCircle,
-  Target,
-  Zap,
-  Award,
-  Activity,
-  Bell,
-  Settings,
-  LogOut
+  TrendingUp,
+  Clock,
+  MessageSquare
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import AvailabilityScheduler from "@/components/AvailabilityScheduler";
+import PlayerRecommendations from "@/components/PlayerRecommendations";
+
+interface UserProfile {
+  full_name: string;
+  age: number;
+  location: string;
+  current_rating: number;
+  playing_style: string;
+  bio: string;
+}
+
+interface DashboardStats {
+  totalMatches: number;
+  pendingRequests: number;
+  winRate: number;
+  currentRating: number;
+}
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
-  const [selectedTab, setSelectedTab] = useState("overview");
+  const { toast } = useToast();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [stats, setStats] = useState<DashboardStats>({
+    totalMatches: 0,
+    pendingRequests: 0,
+    winRate: 0,
+    currentRating: 3.0
+  });
+  const [loading, setLoading] = useState(true);
 
-  const upcomingMatches = [
-    {
-      id: 1,
-      opponent: "Sarah Johnson",
-      date: "Today, 3:00 PM",
-      location: "Central Park Tennis Courts",
-      status: "confirmed",
-      avatar: "SJ"
-    },
-    {
-      id: 2,
-      opponent: "Mike Chen",
-      date: "Tomorrow, 10:00 AM", 
-      location: "Riverside Tennis Club",
-      status: "pending",
-      avatar: "MC"
+  useEffect(() => {
+    if (user) {
+      fetchUserProfile();
+      fetchUserStats();
+      generateRecommendations();
     }
-  ];
+  }, [user]);
 
-  const recentMatches = [
-    {
-      id: 1,
-      opponent: "Alex Rivera",
-      result: "Won 6-4, 6-2",
-      date: "2 days ago",
-      ratingChange: "+0.1",
-      avatar: "AR"
-    },
-    {
-      id: 2,
-      opponent: "Emma Davis", 
-      result: "Lost 4-6, 6-3, 4-6",
-      date: "1 week ago",
-      ratingChange: "-0.05",
-      avatar: "ED"
+  const fetchUserProfile = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', user?.id)
+        .single();
+
+      if (error) throw error;
+      setProfile(data);
+    } catch (error) {
+      console.error('Error fetching profile:', error);
     }
-  ];
+  };
 
-  const stats = [
-    { label: "Current Rating", value: "4.2", change: "+0.1", icon: Star, color: "text-yellow-500" },
-    { label: "Matches Played", value: "23", change: "+2", icon: Trophy, color: "text-emerald-500" },
-    { label: "Win Rate", value: "68%", change: "+5%", icon: TrendingUp, color: "text-blue-500" },
-    { label: "Active Streak", value: "3W", change: "New!", icon: Zap, color: "text-purple-500" }
-  ];
+  const fetchUserStats = async () => {
+    try {
+      // Get match requests count
+      const { data: requests, error: requestsError } = await supabase
+        .from('match_requests')
+        .select('id, status')
+        .or(`requester_id.eq.${user?.id},requested_id.eq.${user?.id}`);
+
+      if (requestsError) throw requestsError;
+
+      // Get match results for win rate
+      const { data: results, error: resultsError } = await supabase
+        .from('match_results')
+        .select('winner_id, match_requests!inner(requester_id, requested_id)')
+        .or(`match_requests.requester_id.eq.${user?.id},match_requests.requested_id.eq.${user?.id}`);
+
+      if (resultsError) throw resultsError;
+
+      const totalMatches = results?.length || 0;
+      const wins = results?.filter(r => r.winner_id === user?.id).length || 0;
+      const winRate = totalMatches > 0 ? (wins / totalMatches) * 100 : 0;
+      const pendingRequests = requests?.filter(r => r.status === 'pending').length || 0;
+
+      setStats({
+        totalMatches,
+        pendingRequests,
+        winRate,
+        currentRating: profile?.current_rating || 3.0
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const generateRecommendations = async () => {
+    try {
+      const { error } = await supabase.functions.invoke('generate-recommendations', {
+        body: { userId: user?.id }
+      });
+
+      if (error) {
+        console.error('Error generating recommendations:', error);
+      }
+    } catch (error) {
+      console.error('Error calling recommendations function:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/20">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-xl">
+      <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-lg">C</span>
-              </div>
-              <div>
-                <h1 className="font-bricolage text-2xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-600">Welcome back, {user?.email?.split('@')[0]}!</p>
-              </div>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Welcome back, {profile?.full_name || user?.email}!
+              </h1>
+              <p className="text-gray-600">Manage your tennis matches and find new playing partners</p>
             </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" size="icon" className="relative">
-                <Bell className="h-5 w-5" />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+            <div className="flex items-center gap-4">
+              <Button variant="outline" onClick={signOut}>
+                <Settings className="h-4 w-4 mr-2" />
+                Settings
               </Button>
-              <Button variant="ghost" size="icon">
-                <Settings className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" onClick={signOut} className="text-red-600 hover:text-red-700 hover:bg-red-50">
-                <LogOut className="h-4 w-4 mr-2" />
+              <Button onClick={signOut}>
                 Sign Out
               </Button>
             </div>
           </div>
         </div>
-      </header>
+      </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, index) => (
-            <Card key={index} className="glass-card border-0 shadow-lg hover:shadow-xl transition-all duration-300 group">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600 mb-1">{stat.label}</p>
-                    <p className="font-bricolage text-3xl font-bold text-gray-900">{stat.value}</p>
-                    <p className="text-sm text-emerald-600 font-medium">{stat.change}</p>
-                  </div>
-                  <div className={`p-3 rounded-xl bg-gray-50 group-hover:scale-110 transition-transform duration-300`}>
-                    <stat.icon className={`h-6 w-6 ${stat.color}`} />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Matches</p>
+                  <p className="text-2xl font-bold">{stats.totalMatches}</p>
+                </div>
+                <Trophy className="h-8 w-8 text-emerald-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Pending Requests</p>
+                  <p className="text-2xl font-bold">{stats.pendingRequests}</p>
+                </div>
+                <MessageSquare className="h-8 w-8 text-blue-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Win Rate</p>
+                  <p className="text-2xl font-bold">{stats.winRate.toFixed(1)}%</p>
+                </div>
+                <TrendingUp className="h-8 w-8 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Current Rating</p>
+                  <div className="flex items-center gap-1">
+                    <p className="text-2xl font-bold">{stats.currentRating}</p>
+                    <Star className="h-5 w-5 text-yellow-500 fill-current" />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+                <Star className="h-8 w-8 text-yellow-600" />
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
-            {/* Upcoming Matches */}
-            <Card className="glass-card border-0 shadow-lg">
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="font-bricolage text-2xl text-gray-900">Upcoming Matches</CardTitle>
-                  <CardDescription>Your scheduled tennis matches</CardDescription>
+        {/* Profile Summary */}
+        {profile && (
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Your Profile
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex items-center gap-3">
+                  <MapPin className="h-5 w-5 text-gray-500" />
+                  <div>
+                    <p className="font-medium">Location</p>
+                    <p className="text-sm text-gray-600">{profile.location || 'Not set'}</p>
+                  </div>
                 </div>
-                <Button className="gradient-primary text-white">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Schedule Match
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {upcomingMatches.map((match) => (
-                  <div key={match.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-emerald-50/30 rounded-xl border border-gray-100">
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-gradient-to-r from-emerald-400 to-blue-500 text-white font-semibold">
-                          {match.avatar}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{match.opponent}</h3>
-                        <div className="flex items-center text-sm text-gray-600 space-x-4">
-                          <span className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1" />
-                            {match.date}
-                          </span>
-                          <span className="flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
-                            {match.location}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge variant={match.status === 'confirmed' ? 'default' : 'secondary'}>
-                        {match.status}
-                      </Badge>
-                      <Button variant="ghost" size="icon">
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
-                    </div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-gray-500" />
+                  <div>
+                    <p className="font-medium">Age</p>
+                    <p className="text-sm text-gray-600">{profile.age || 'Not set'}</p>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Trophy className="h-5 w-5 text-gray-500" />
+                  <div>
+                    <p className="font-medium">Playing Style</p>
+                    <Badge variant="secondary">{profile.playing_style || 'Not set'}</Badge>
+                  </div>
+                </div>
+              </div>
+              {profile.bio && (
+                <div className="mt-4">
+                  <p className="font-medium mb-2">About</p>
+                  <p className="text-sm text-gray-600">{profile.bio}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
-            {/* Recent Matches */}
-            <Card className="glass-card border-0 shadow-lg">
+        {/* Main Content Tabs */}
+        <Tabs defaultValue="recommendations" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="recommendations">
+              <Users className="h-4 w-4 mr-2" />
+              Player Recommendations
+            </TabsTrigger>
+            <TabsTrigger value="availability">
+              <Clock className="h-4 w-4 mr-2" />
+              Availability
+            </TabsTrigger>
+            <TabsTrigger value="matches">
+              <Trophy className="h-4 w-4 mr-2" />
+              Recent Matches
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="recommendations">
+            <PlayerRecommendations />
+          </TabsContent>
+
+          <TabsContent value="availability">
+            <AvailabilityScheduler />
+          </TabsContent>
+
+          <TabsContent value="matches">
+            <Card>
               <CardHeader>
-                <CardTitle className="font-bricolage text-2xl text-gray-900">Recent Matches</CardTitle>
-                <CardDescription>Your latest match results and rating changes</CardDescription>
+                <CardTitle>Recent Match Activity</CardTitle>
+                <CardDescription>
+                  Your recent matches and results
+                </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                {recentMatches.map((match) => (
-                  <div key={match.id} className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-blue-50/30 rounded-xl border border-gray-100">
-                    <div className="flex items-center space-x-4">
-                      <Avatar className="w-12 h-12">
-                        <AvatarImage src="" />
-                        <AvatarFallback className="bg-gradient-to-r from-blue-400 to-purple-500 text-white font-semibold">
-                          {match.avatar}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">{match.opponent}</h3>
-                        <p className="text-sm text-gray-600">{match.result} • {match.date}</p>
-                      </div>
-                    </div>
-                    <Badge variant={match.ratingChange.startsWith('+') ? 'default' : 'destructive'}>
-                      {match.ratingChange}
-                    </Badge>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-8">
-            {/* Profile Card */}
-            <Card className="glass-card border-0 shadow-lg">
-              <CardContent className="p-6">
-                <div className="text-center">
-                  <Avatar className="w-20 h-20 mx-auto mb-4">
-                    <AvatarImage src="" />
-                    <AvatarFallback className="bg-gradient-to-r from-emerald-400 to-teal-500 text-white text-2xl font-bold">
-                      {user?.email?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <h3 className="font-bricolage text-xl font-bold text-gray-900 mb-1">
-                    {user?.email?.split('@')[0]}
-                  </h3>
-                  <p className="text-gray-600 mb-4">NTRP Rating: 4.2</p>
-                  <Button variant="outline" className="w-full">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Edit Profile
+              <CardContent>
+                <div className="text-center py-8">
+                  <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <p className="text-gray-500 mb-4">No recent matches found</p>
+                  <Button onClick={() => window.location.href = '/matches'}>
+                    View All Matches
                   </Button>
                 </div>
               </CardContent>
             </Card>
-
-            {/* Progress Card */}
-            <Card className="glass-card border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="font-bricolage text-xl text-gray-900">This Month's Goals</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Matches Played</span>
-                    <span className="font-medium">8/10</span>
-                  </div>
-                  <Progress value={80} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">Rating Improvement</span>
-                    <span className="font-medium">+0.2/+0.3</span>
-                  </div>
-                  <Progress value={67} className="h-2" />
-                </div>
-                <div>
-                  <div className="flex justify-between text-sm mb-2">
-                    <span className="text-gray-600">New Partners Met</span>
-                    <span className="font-medium">5/7</span>
-                  </div>
-                  <Progress value={71} className="h-2" />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Quick Actions */}
-            <Card className="glass-card border-0 shadow-lg">
-              <CardHeader>
-                <CardTitle className="font-bricolage text-xl text-gray-900">Quick Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <Users className="h-4 w-4 mr-3" />
-                  Find Players
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Calendar className="h-4 w-4 mr-3" />
-                  Schedule Match
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <MessageCircle className="h-4 w-4 mr-3" />
-                  Messages
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Target className="h-4 w-4 mr-3" />
-                  Join Circles
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

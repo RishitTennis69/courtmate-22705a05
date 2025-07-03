@@ -9,7 +9,244 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      match_requests: {
+        Row: {
+          created_at: string
+          id: string
+          location: string | null
+          message: string | null
+          proposed_datetime: string | null
+          requested_id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          message?: string | null
+          proposed_datetime?: string | null
+          requested_id: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          location?: string | null
+          message?: string | null
+          proposed_datetime?: string | null
+          requested_id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      match_results: {
+        Row: {
+          completed_at: string
+          created_at: string
+          duration_minutes: number | null
+          id: string
+          match_request_id: string
+          score: string | null
+          winner_id: string | null
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          match_request_id: string
+          score?: string | null
+          winner_id?: string | null
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          duration_minutes?: number | null
+          id?: string
+          match_request_id?: string
+          score?: string | null
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_results_match_request_id_fkey"
+            columns: ["match_request_id"]
+            isOneToOne: false
+            referencedRelation: "match_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          match_result_id: string
+          notes: string | null
+          rated_player_id: string
+          rater_id: string
+          skill_assessment: string
+          sportsmanship_rating: number | null
+          would_play_again: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_result_id: string
+          notes?: string | null
+          rated_player_id: string
+          rater_id: string
+          skill_assessment: string
+          sportsmanship_rating?: number | null
+          would_play_again?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_result_id?: string
+          notes?: string | null
+          rated_player_id?: string
+          rater_id?: string
+          skill_assessment?: string
+          sportsmanship_rating?: number | null
+          would_play_again?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_ratings_match_result_id_fkey"
+            columns: ["match_result_id"]
+            isOneToOne: false
+            referencedRelation: "match_results"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_recommendations: {
+        Row: {
+          created_at: string
+          expires_at: string
+          factors_matched: string[] | null
+          id: string
+          reasoning: string | null
+          recommendation_score: number | null
+          recommended_player_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string
+          factors_matched?: string[] | null
+          id?: string
+          reasoning?: string | null
+          recommendation_score?: number | null
+          recommended_player_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          factors_matched?: string[] | null
+          id?: string
+          reasoning?: string | null
+          recommendation_score?: number | null
+          recommended_player_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_preferred: boolean | null
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_preferred?: boolean | null
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_preferred?: boolean | null
+          start_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_profiles: {
+        Row: {
+          age: number | null
+          availability_notes: string | null
+          bio: string | null
+          created_at: string
+          current_rating: number | null
+          full_name: string | null
+          google_calendar_connected: boolean | null
+          google_calendar_token: string | null
+          id: string
+          is_active: boolean | null
+          location: string | null
+          playing_style: string | null
+          preferred_location: string | null
+          profile_image_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          availability_notes?: string | null
+          bio?: string | null
+          created_at?: string
+          current_rating?: number | null
+          full_name?: string | null
+          google_calendar_connected?: boolean | null
+          google_calendar_token?: string | null
+          id: string
+          is_active?: boolean | null
+          location?: string | null
+          playing_style?: string | null
+          preferred_location?: string | null
+          profile_image_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          availability_notes?: string | null
+          bio?: string | null
+          created_at?: string
+          current_rating?: number | null
+          full_name?: string | null
+          google_calendar_connected?: boolean | null
+          google_calendar_token?: string | null
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          playing_style?: string | null
+          preferred_location?: string | null
+          profile_image_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
