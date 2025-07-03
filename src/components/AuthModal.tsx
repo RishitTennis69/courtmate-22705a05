@@ -31,7 +31,7 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
+          emailRedirectTo: 'https://courtmate.lovable.app/dashboard',
           data: mode === 'signup' ? {
             full_name: name,
           } : undefined
