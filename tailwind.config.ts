@@ -52,13 +52,6 @@ export default {
 				card: {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
-				},
-				tennis: {
-					green: 'hsl(var(--tennis-green))',
-					'green-light': 'hsl(var(--tennis-green-light))',
-					yellow: 'hsl(var(--tennis-yellow))',
-					clay: 'hsl(var(--court-clay))',
-					white: 'hsl(var(--net-white))'
 				}
 			},
 			borderRadius: {
@@ -86,17 +79,12 @@ export default {
 				'fade-in': {
 					'0%': { opacity: '0', transform: 'translateY(20px)' },
 					'100%': { opacity: '1', transform: 'translateY(0)' }
-				},
-				'bounce-ball': {
-					'0%, 100%': { transform: 'translateY(0)' },
-					'50%': { transform: 'translateY(-10px)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out',
-				'fade-in': 'fade-in 0.6s ease-out',
-				'bounce-ball': 'bounce-ball 2s ease-in-out infinite'
+				'fade-in': 'fade-in 0.6s ease-out'
 			}
 		}
 	},

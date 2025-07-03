@@ -6,7 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Mail, Lock, User } from "lucide-react";
+import { Mail, Lock, User, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -20,19 +22,67 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     
-    // TODO: Implement actual authentication logic
-    console.log(mode === 'signup' ? 'Sign up' : 'Sign in', { email, password, name });
-    
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      if (mode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+            },
+            emailRedirectTo: `${window.location.origin}/`
+          }
+        });
+        
+        if (error) {
+          toast({
+            title: "Sign up failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Success!",
+            description: "Please check your email to verify your account.",
+          });
+          onClose();
+        }
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) {
+          toast({
+            title: "Sign in failed",
+            description: error.message,
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Welcome back!",
+            description: "Successfully signed in to your account.",
+          });
+          onClose();
+        }
+      }
+    } catch (error) {
+      toast({
+        title: "An error occurred",
+        description: "Please try again later.",
+        variant: "destructive",
+      });
+    } finally {
       setLoading(false);
-      onClose();
-    }, 1000);
+    }
   };
 
   return (
@@ -40,7 +90,7 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
-            Welcome to <span className="text-tennis-green">CourtMate</span>
+            Welcome to <span className="text-primary">CourtMate</span>
           </DialogTitle>
         </DialogHeader>
         
@@ -91,7 +141,14 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
                   </div>
                   
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing In..." : "Sign In"}
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Signing In...
+                      </>
+                    ) : (
+                      "Sign In"
+                    )}
                   </Button>
                 </form>
               </CardContent>
@@ -155,7 +212,14 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
                   </div>
                   
                   <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating Account..." : "Create Account"}
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
                   </Button>
                 </form>
               </CardContent>
