@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,9 +58,9 @@ const PlayerStatsModal = ({ isOpen, onClose, opponentId, opponentName }: PlayerS
 
       if (headToHeadError) throw headToHeadError;
 
-      // Type the returned JSON data properly
-      setPlayerStats(playerStatsData as PlayerStats);
-      setHeadToHeadStats(headToHeadData as HeadToHeadStats);
+      // Type the returned JSON data properly using unknown first
+      setPlayerStats(playerStatsData as unknown as PlayerStats);
+      setHeadToHeadStats(headToHeadData as unknown as HeadToHeadStats);
     } catch (error) {
       console.error('Error fetching stats:', error);
     } finally {
