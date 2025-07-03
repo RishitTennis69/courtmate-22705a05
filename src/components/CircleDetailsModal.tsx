@@ -24,12 +24,13 @@ interface Circle {
 
 interface Member {
   id: string
+  user_id: string
   role: string
   joined_at: string
   user_profiles: {
     full_name: string | null
     profile_image_url: string | null
-  }
+  } | null
 }
 
 interface CircleDetailsModalProps {
@@ -66,17 +67,31 @@ export default function CircleDetailsModal({
       const { data, error } = await supabase
         .from("circle_members")
         .select(`
-          *,
-          user_profiles:user_id (
-            full_name,
-            profile_image_url
-          )
+          id,
+          user_id,
+          role,
+          joined_at
         `)
         .eq("circle_id", circle.id)
         .order("joined_at", { ascending: false })
 
       if (error) throw error
-      setMembers(data || [])
+
+      // Fetch user profiles separately
+      const userIds = [...new Set(data?.map(member => member.user_id) || [])]
+      const { data: profiles } = await supabase
+        .from("user_profiles")
+        .select("id, full_name, profile_image_url")
+        .in("id", userIds)
+
+      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || [])
+      
+      const membersWithProfiles = (data || []).map(member => ({
+        ...member,
+        user_profiles: profilesMap.get(member.user_id) || null
+      }))
+
+      setMembers(membersWithProfiles)
     } catch (error) {
       console.error("Error fetching members:", error)
     }
@@ -158,8 +173,7 @@ export default function CircleDetailsModal({
   if (!circle) return null
 
   const isCreator = user?.id === circle.created_by
-  const userMember = members.find(m => m.user_profiles && user && 
-    (m as any).user_id === user.id)
+  const userMember = members.find(m => m.user_id === user?.id)
 
   return (
     <>

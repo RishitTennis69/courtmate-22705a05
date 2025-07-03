@@ -52,17 +52,31 @@ export default function CircleChat({ circleId, circleName }: CircleChatProps) {
       const { data, error } = await supabase
         .from("circle_messages")
         .select(`
-          *,
-          user_profiles:user_id (
-            full_name,
-            profile_image_url
-          )
+          id,
+          content,
+          created_at,
+          user_id
         `)
         .eq("circle_id", circleId)
         .order("created_at", { ascending: true })
 
       if (error) throw error
-      setMessages(data || [])
+
+      // Fetch user profiles separately
+      const userIds = [...new Set(data?.map(msg => msg.user_id) || [])]
+      const { data: profiles } = await supabase
+        .from("user_profiles")
+        .select("id, full_name, profile_image_url")
+        .in("id", userIds)
+
+      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || [])
+      
+      const messagesWithProfiles = (data || []).map(message => ({
+        ...message,
+        user_profiles: profilesMap.get(message.user_id) || null
+      }))
+
+      setMessages(messagesWithProfiles)
     } catch (error) {
       console.error("Error fetching messages:", error)
       toast({
