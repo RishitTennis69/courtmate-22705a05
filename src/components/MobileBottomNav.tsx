@@ -1,7 +1,7 @@
 
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Home, Users, Trophy, MessageSquare, UserPlus } from 'lucide-react';
+import { Home, Users, Trophy, MessageSquare, UserPlus, Settings } from 'lucide-react';
 
 export default function MobileBottomNav() {
   const location = useLocation();
@@ -12,7 +12,7 @@ export default function MobileBottomNav() {
     { path: '/find-players', icon: UserPlus, label: 'Find' },
     { path: '/matches', icon: Trophy, label: 'Matches' },
     { path: '/messages', icon: MessageSquare, label: 'Messages' },
-    { path: '/circles', icon: Users, label: 'Circles' },
+    { path: '/settings', icon: Settings, label: 'Settings' },
   ];
 
   return (

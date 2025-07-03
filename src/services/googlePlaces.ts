@@ -23,17 +23,21 @@ export interface PlacePrediction {
     main_text: string;
     secondary_text: string;
   };
+  types: string[];
 }
 
 export class GooglePlacesService {
   async searchPlaces(query: string, location?: { lat: number; lng: number }): Promise<PlacePrediction[]> {
     try {
-      const { data } = await supabase.functions.invoke('search-places', {
+      const { data, error } = await supabase.functions.invoke('search-places', {
         body: { 
           query,
-          location: location ? `${location.lat},${location.lng}` : undefined
+          location: location ? `${location.lat},${location.lng}` : undefined,
+          types: 'geocode'
         }
       });
+
+      if (error) throw error;
       return data?.predictions || [];
     } catch (error) {
       console.error('Failed to search places:', error);
@@ -43,9 +47,11 @@ export class GooglePlacesService {
 
   async getPlaceDetails(placeId: string): Promise<PlaceResult | null> {
     try {
-      const { data } = await supabase.functions.invoke('get-place-details', {
+      const { data, error } = await supabase.functions.invoke('get-place-details', {
         body: { placeId }
       });
+
+      if (error) throw error;
       return data?.result || null;
     } catch (error) {
       console.error('Failed to get place details:', error);
@@ -55,16 +61,51 @@ export class GooglePlacesService {
 
   async searchTennisCourts(location: { lat: number; lng: number }, radius: number = 5000): Promise<PlaceResult[]> {
     try {
-      const { data } = await supabase.functions.invoke('search-tennis-courts', {
+      const { data, error } = await supabase.functions.invoke('search-tennis-courts', {
         body: { 
           location: `${location.lat},${location.lng}`,
-          radius 
+          radius,
+          keyword: 'tennis court'
         }
       });
+
+      if (error) throw error;
       return data?.results || [];
     } catch (error) {
       console.error('Failed to search tennis courts:', error);
       return [];
+    }
+  }
+
+  async getCurrentLocation(): Promise<{ lat: number; lng: number } | null> {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+          resolve(null);
+        }
+      );
+    });
+  }
+
+  async searchNearbyPlaces(query: string): Promise<PlacePrediction[]> {
+    try {
+      const currentLocation = await this.getCurrentLocation();
+      return this.searchPlaces(query, currentLocation || undefined);
+    } catch (error) {
+      console.error('Failed to search nearby places:', error);
+      return this.searchPlaces(query);
     }
   }
 }
