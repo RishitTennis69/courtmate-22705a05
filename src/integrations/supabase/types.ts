@@ -73,7 +73,14 @@ export type Database = {
           duration_minutes: number | null
           id: string
           match_request_id: string
+          player1_score: string | null
+          player2_score: string | null
           score: string | null
+          status: string | null
+          submitted_at: string | null
+          submitted_by_id: string | null
+          verified_at: string | null
+          verified_by_id: string | null
           winner_id: string | null
         }
         Insert: {
@@ -82,7 +89,14 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           match_request_id: string
+          player1_score?: string | null
+          player2_score?: string | null
           score?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          submitted_by_id?: string | null
+          verified_at?: string | null
+          verified_by_id?: string | null
           winner_id?: string | null
         }
         Update: {
@@ -91,7 +105,14 @@ export type Database = {
           duration_minutes?: number | null
           id?: string
           match_request_id?: string
+          player1_score?: string | null
+          player2_score?: string | null
           score?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          submitted_by_id?: string | null
+          verified_at?: string | null
+          verified_by_id?: string | null
           winner_id?: string | null
         }
         Relationships: [
@@ -247,6 +268,44 @@ export type Database = {
         }
         Relationships: []
       }
+      rating_history: {
+        Row: {
+          created_at: string
+          id: string
+          new_rating: number
+          old_rating: number
+          player_id: string
+          reason: string
+          triggered_by_rating_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          new_rating: number
+          old_rating: number
+          player_id: string
+          reason: string
+          triggered_by_rating_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          new_rating?: number
+          old_rating?: number
+          player_id?: string
+          reason?: string
+          triggered_by_rating_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rating_history_triggered_by_rating_id_fkey"
+            columns: ["triggered_by_rating_id"]
+            isOneToOne: false
+            referencedRelation: "player_ratings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       safety_contacts: {
         Row: {
           contact_email: string | null
@@ -327,6 +386,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      skill_assessment_streaks: {
+        Row: {
+          assessment_type: string
+          consecutive_count: number | null
+          created_at: string
+          id: string
+          last_assessment_date: string | null
+          player_id: string
+          updated_at: string
+        }
+        Insert: {
+          assessment_type: string
+          consecutive_count?: number | null
+          created_at?: string
+          id?: string
+          last_assessment_date?: string | null
+          player_id: string
+          updated_at?: string
+        }
+        Update: {
+          assessment_type?: string
+          consecutive_count?: number | null
+          created_at?: string
+          id?: string
+          last_assessment_date?: string | null
+          player_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_availability: {
         Row: {
@@ -453,6 +542,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_head_to_head_stats: {
+        Args: { player1_id: string; player2_id: string }
+        Returns: Json
+      }
+      get_player_stats: {
+        Args: { player_id: string }
+        Returns: Json
+      }
       get_unread_message_count: {
         Args: Record<PropertyKey, never>
         Returns: number

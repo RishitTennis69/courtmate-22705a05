@@ -1,16 +1,19 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, MapPin, MessageCircle, Trophy, CheckCircle, X, Shield } from "lucide-react";
+import { Calendar, Clock, MapPin, MessageCircle, Trophy, CheckCircle, X, Shield, BarChart3, FileText, Star } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import MatchRatingModal from "@/components/MatchRatingModal";
 import SafetyShareModal from "@/components/SafetyShareModal";
+import MatchScoreModal from "@/components/MatchScoreModal";
+import ScoreVerificationModal from "@/components/ScoreVerificationModal";
+import PlayerStatsModal from "@/components/PlayerStatsModal";
+import CalendarSyncButton from "@/components/CalendarSyncButton";
 
 interface MatchRequest {
   id: string;
@@ -31,6 +34,14 @@ interface MatchRequest {
     profile_image_url: string;
     current_rating: number;
   };
+  match_results?: {
+    id: string;
+    player1_score: string;
+    player2_score: string;
+    status: string;
+    submitted_by_id: string;
+    duration_minutes: number;
+  }[];
 }
 
 const Matches = () => {
@@ -59,6 +70,37 @@ const Matches = () => {
     opponentName: '',
     location: '',
     scheduledTime: ''
+  });
+  const [scoreModal, setScoreModal] = useState<{
+    isOpen: boolean;
+    matchResultId: string;
+    matchRequestId: string;
+    opponentName: string;
+    opponentId: string;
+  }>({
+    isOpen: false,
+    matchResultId: '',
+    matchRequestId: '',
+    opponentName: '',
+    opponentId: ''
+  });
+  const [verificationModal, setVerificationModal] = useState<{
+    isOpen: boolean;
+    matchResult: any;
+    opponentName: string;
+  }>({
+    isOpen: false,
+    matchResult: null,
+    opponentName: ''
+  });
+  const [statsModal, setStatsModal] = useState<{
+    isOpen: boolean;
+    opponentId: string;
+    opponentName: string;
+  }>({
+    isOpen: false,
+    opponentId: '',
+    opponentName: ''
   });
   const { user } = useAuth();
   const { toast } = useToast();
@@ -99,10 +141,19 @@ const Matches = () => {
 
       if (profilesError) throw profilesError;
 
+      // Fetch match results for each match request
+      const { data: matchResultsData, error: matchResultsError } = await supabase
+        .from('match_results')
+        .select('*')
+        .in('match_request_id', matchData.map(m => m.id));
+
+      if (matchResultsError) throw matchResultsError;
+
       // Combine the data
       const combinedMatches = matchData.map(match => {
         const requester = profilesData?.find(p => p.id === match.requester_id);
         const requested = profilesData?.find(p => p.id === match.requested_id);
+        const matchResults = matchResultsData?.filter(mr => mr.match_request_id === match.id) || [];
         
         return {
           ...match,
@@ -115,7 +166,8 @@ const Matches = () => {
             full_name: 'Unknown Player',
             profile_image_url: '',
             current_rating: 3.0
-          }
+          },
+          match_results: matchResults
         };
       });
 
@@ -175,9 +227,10 @@ const Matches = () => {
         .update({ status: 'completed' })
         .eq('id', matchId);
 
-      setRatingModal({
+      setScoreModal({
         isOpen: true,
         matchResultId: matchResult.id,
+        matchRequestId: matchId,
         opponentName,
         opponentId
       });
@@ -227,6 +280,10 @@ const Matches = () => {
     const isRequester = match.requester_id === user?.id;
     const opponent = isRequester ? match.requested : match.requester;
     const opponentId = isRequester ? match.requested_id : match.requester_id;
+    const matchResult = match.match_results?.[0];
+    const needsVerification = matchResult && matchResult.status === 'pending' && 
+      matchResult.submitted_by_id !== user?.id;
+    const hasUnratedMatch = matchResult && matchResult.status === 'verified';
 
     return (
       <Card key={match.id} className="hover:shadow-lg transition-shadow">
@@ -271,6 +328,16 @@ const Matches = () => {
                     <p className="text-sm text-gray-700">{match.message}</p>
                   </div>
                 )}
+
+                {matchResult && (
+                  <div className="flex items-center gap-2 text-sm">
+                    <FileText className="h-4 w-4 text-gray-500" />
+                    <span>Score: {matchResult.player1_score}-{matchResult.player2_score}</span>
+                    <Badge variant={matchResult.status === 'verified' ? 'default' : 'secondary'}>
+                      {matchResult.status}
+                    </Badge>
+                  </div>
+                )}
               </div>
             </div>
             
@@ -302,6 +369,23 @@ const Matches = () => {
                   <Button
                     size="sm"
                     variant="outline"
+                    onClick={() => setStatsModal({
+                      isOpen: true,
+                      opponentId,
+                      opponentName: opponent.full_name
+                    })}
+                  >
+                    <BarChart3 className="h-4 w-4 mr-1" />
+                    View Stats
+                  </Button>
+                  <CalendarSyncButton
+                    matchDate={match.proposed_datetime}
+                    matchLocation={match.location}
+                    opponentName={opponent.full_name}
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => handleSafetyShare(match)}
                   >
                     <Shield className="h-4 w-4 mr-1" />
@@ -315,6 +399,37 @@ const Matches = () => {
                     Complete Match
                   </Button>
                 </div>
+              )}
+
+              {needsVerification && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setVerificationModal({
+                    isOpen: true,
+                    matchResult,
+                    opponentName: opponent.full_name
+                  })}
+                >
+                  <CheckCircle className="h-4 w-4 mr-1" />
+                  Verify Score
+                </Button>
+              )}
+
+              {hasUnratedMatch && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setRatingModal({
+                    isOpen: true,
+                    matchResultId: matchResult.id,
+                    opponentName: opponent.full_name,
+                    opponentId
+                  })}
+                >
+                  <Star className="h-4 w-4 mr-1" />
+                  Rate Match
+                </Button>
               )}
             </div>
           </div>
@@ -409,6 +524,29 @@ const Matches = () => {
         opponentName={safetyModal.opponentName}
         location={safetyModal.location}
         scheduledTime={safetyModal.scheduledTime}
+      />
+
+      <MatchScoreModal
+        isOpen={scoreModal.isOpen}
+        onClose={() => setScoreModal(prev => ({ ...prev, isOpen: false }))}
+        matchResultId={scoreModal.matchResultId}
+        matchRequestId={scoreModal.matchRequestId}
+        opponentName={scoreModal.opponentName}
+        opponentId={scoreModal.opponentId}
+      />
+
+      <ScoreVerificationModal
+        isOpen={verificationModal.isOpen}
+        onClose={() => setVerificationModal(prev => ({ ...prev, isOpen: false }))}
+        matchResult={verificationModal.matchResult}
+        opponentName={verificationModal.opponentName}
+      />
+
+      <PlayerStatsModal
+        isOpen={statsModal.isOpen}
+        onClose={() => setStatsModal(prev => ({ ...prev, isOpen: false }))}
+        opponentId={statsModal.opponentId}
+        opponentName={statsModal.opponentName}
       />
     </div>
   );
