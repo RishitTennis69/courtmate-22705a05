@@ -12,7 +12,13 @@ import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Onboarding from "./pages/Onboarding";
 import Matches from "./pages/Matches";
+import FindPlayers from "./pages/FindPlayers";
+import Messages from "./pages/Messages";
+import Circles from "./pages/Circles";
+import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { AppSidebar } from "./components/AppSidebar";
+import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 
 const queryClient = new QueryClient();
 
@@ -27,34 +33,91 @@ const AppContent = () => {
     );
   }
 
+  // If user is not authenticated, show routes without sidebar
+  if (!user) {
+    return (
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    );
+  }
+
+  // If user is authenticated, show routes with sidebar
   return (
-    <Routes>
-      <Route path="/" element={user ? <Navigate to="/dashboard" /> : <Index />} />
-      <Route 
-        path="/onboarding" 
-        element={
-          <ProtectedRoute>
-            <Onboarding />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/dashboard" 
-        element={
-          <ProtectedRoute>
-            <Dashboard />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path="/matches" 
-        element={
-          <ProtectedRoute>
-            <Matches />
-          </ProtectedRoute>
-        } 
-      />
-    </Routes>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full">
+        <AppSidebar />
+        <SidebarInset className="flex-1">
+          <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+            <SidebarTrigger className="-ml-1" />
+            <div className="ml-auto">
+              {/* You can add additional header content here */}
+            </div>
+          </header>
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route 
+              path="/onboarding" 
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/find-players" 
+              element={
+                <ProtectedRoute>
+                  <FindPlayers />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/matches" 
+              element={
+                <ProtectedRoute>
+                  <Matches />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/messages" 
+              element={
+                <ProtectedRoute>
+                  <Messages />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/circles" 
+              element={
+                <ProtectedRoute>
+                  <Circles />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <Admin />
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/dashboard" />} />
+          </Routes>
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };
 
