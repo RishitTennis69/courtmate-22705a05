@@ -9,67 +9,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
-// Mock data for admin panel
-const mockUsers = [
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    email: "sarah@example.com",
-    rating: 4.2,
-    matchesPlayed: 15,
-    joinDate: "2024-01-15",
-    status: "active",
-    reportCount: 0,
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: "2",
-    name: "Mike Chen",
-    email: "mike@example.com", 
-    rating: 3.8,
-    matchesPlayed: 8,
-    joinDate: "2024-02-20",
-    status: "active",
-    reportCount: 1,
-    avatar: "/placeholder.svg"
-  },
-  {
-    id: "3",
-    name: "Flagged User",
-    email: "flagged@example.com",
-    rating: 2.1,
-    matchesPlayed: 3,
-    joinDate: "2024-03-01", 
-    status: "flagged",
-    reportCount: 3,
-    avatar: "/placeholder.svg"
-  }
-]
-
-const mockReports = [
-  {
-    id: "1",
-    reporterId: "2",
-    reporterName: "Mike Chen",
-    reportedId: "3", 
-    reportedName: "Flagged User",
-    reason: "Inappropriate behavior during match",
-    description: "User was using offensive language and unsportsmanlike conduct",
-    timestamp: "2024-03-10T14:30:00Z",
-    status: "pending"
-  },
-  {
-    id: "2",
-    reporterId: "1",
-    reporterName: "Sarah Johnson", 
-    reportedId: "3",
-    reportedName: "Flagged User",
-    reason: "No-show for scheduled match",
-    description: "User didn't show up for scheduled match and didn't respond to messages",
-    timestamp: "2024-03-08T10:15:00Z",
-    status: "reviewed"
-  }
-]
+// Empty arrays - no more fake data
+const mockUsers: any[] = []
+const mockReports: any[] = []
 
 export default function Admin() {
   const [searchTerm, setSearchTerm] = useState("")
@@ -172,63 +114,71 @@ export default function Admin() {
               <CardTitle>Users ({filteredUsers.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {filteredUsers.map((user) => (
-                  <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={user.avatar} />
-                        <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="font-medium">{user.name}</h3>
-                          <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
-                            {user.status}
-                          </Badge>
-                          {user.reportCount > 0 && (
-                            <Badge variant="outline" className="text-yellow-600">
-                              {user.reportCount} reports
+              {filteredUsers.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No users found</p>
+                  <p className="text-sm">Users will appear here once they sign up</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {filteredUsers.map((user) => (
+                    <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={user.avatar} />
+                          <AvatarFallback>{user.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium">{user.name}</h3>
+                            <Badge variant={user.status === 'active' ? 'default' : 'destructive'}>
+                              {user.status}
                             </Badge>
-                          )}
-                        </div>
-                        <p className="text-sm text-muted-foreground">{user.email}</p>
-                        <div className="flex gap-4 text-xs text-muted-foreground mt-1">
-                          <span>Rating: {user.rating}</span>
-                          <span>Matches: {user.matchesPlayed}</span>
-                          <span>Joined: {new Date(user.joinDate).toLocaleDateString()}</span>
+                            {user.reportCount > 0 && (
+                              <Badge variant="outline" className="text-yellow-600">
+                                {user.reportCount} reports
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">{user.email}</p>
+                          <div className="flex gap-4 text-xs text-muted-foreground mt-1">
+                            <span>Rating: {user.rating}</span>
+                            <span>Matches: {user.matchesPlayed}</span>
+                            <span>Joined: {new Date(user.joinDate).toLocaleDateString()}</span>
+                          </div>
                         </div>
                       </div>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">
+                          View Details
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="destructive" size="sm">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete User Account</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete {user.name}'s account? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction className="bg-destructive text-destructive-foreground">
+                                Delete Account
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        View Details
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" size="sm">
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete User Account</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Are you sure you want to delete {user.name}'s account? This action cannot be undone.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction className="bg-destructive text-destructive-foreground">
-                              Delete Account
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -239,39 +189,47 @@ export default function Admin() {
               <CardTitle>User Reports ({mockReports.length})</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {mockReports.map((report) => (
-                  <div key={report.id} className="p-4 border rounded-lg space-y-3">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge variant={report.status === 'pending' ? 'destructive' : 'secondary'}>
-                            {report.status}
-                          </Badge>
-                          <span className="text-sm text-muted-foreground">
-                            {new Date(report.timestamp).toLocaleDateString()}
-                          </span>
+              {mockReports.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <AlertTriangle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>No reports found</p>
+                  <p className="text-sm">User reports will appear here when submitted</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {mockReports.map((report) => (
+                    <div key={report.id} className="p-4 border rounded-lg space-y-3">
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            <Badge variant={report.status === 'pending' ? 'destructive' : 'secondary'}>
+                              {report.status}
+                            </Badge>
+                            <span className="text-sm text-muted-foreground">
+                              {new Date(report.timestamp).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <h3 className="font-medium">{report.reason}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            <strong>{report.reporterName}</strong> reported <strong>{report.reportedName}</strong>
+                          </p>
                         </div>
-                        <h3 className="font-medium">{report.reason}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          <strong>{report.reporterName}</strong> reported <strong>{report.reportedName}</strong>
-                        </p>
+                        {report.status === 'pending' && (
+                          <div className="flex gap-2">
+                            <Button variant="outline" size="sm">
+                              Dismiss
+                            </Button>
+                            <Button variant="destructive" size="sm">
+                              Take Action
+                            </Button>
+                          </div>
+                        )}
                       </div>
-                      {report.status === 'pending' && (
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm">
-                            Dismiss
-                          </Button>
-                          <Button variant="destructive" size="sm">
-                            Take Action
-                          </Button>
-                        </div>
-                      )}
+                      <p className="text-sm">{report.description}</p>
                     </div>
-                    <p className="text-sm">{report.description}</p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
