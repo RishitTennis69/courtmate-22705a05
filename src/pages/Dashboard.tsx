@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -20,6 +19,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import AvailabilityScheduler from "@/components/AvailabilityScheduler";
 import PlayerRecommendations from "@/components/PlayerRecommendations";
+import MobileOptimizedDashboard from "@/components/MobileOptimizedDashboard";
+import { useIsMobile } from "@/hooks/use-mobile";
+import EnhancedPlayerRecommendations from "@/components/EnhancedPlayerRecommendations";
 
 interface UserProfile {
   full_name: string;
@@ -48,6 +50,7 @@ const Dashboard = () => {
     currentRating: 3.0
   });
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (user) {
@@ -122,6 +125,10 @@ const Dashboard = () => {
     }
   };
 
+  if (isMobile) {
+    return <MobileOptimizedDashboard />;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -141,166 +148,17 @@ const Dashboard = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Welcome back, {profile?.full_name || user?.email}!
+                Welcome back!
               </h1>
               <p className="text-gray-600">Manage your tennis matches and find new playing partners</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" onClick={signOut}>
-                <Settings className="h-4 w-4 mr-2" />
-                Settings
-              </Button>
-              <Button onClick={signOut}>
-                Sign Out
-              </Button>
             </div>
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-4 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Total Matches</p>
-                  <p className="text-2xl font-bold">{stats.totalMatches}</p>
-                </div>
-                <Trophy className="h-8 w-8 text-emerald-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Pending Requests</p>
-                  <p className="text-2xl font-bold">{stats.pendingRequests}</p>
-                </div>
-                <MessageSquare className="h-8 w-8 text-blue-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Win Rate</p>
-                  <p className="text-2xl font-bold">{stats.winRate.toFixed(1)}%</p>
-                </div>
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-600">Current Rating</p>
-                  <div className="flex items-center gap-1">
-                    <p className="text-2xl font-bold">{stats.currentRating}</p>
-                    <Star className="h-5 w-5 text-yellow-500 fill-current" />
-                  </div>
-                </div>
-                <Star className="h-8 w-8 text-yellow-600" />
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Profile Summary */}
-        {profile && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Your Profile
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-center gap-3">
-                  <MapPin className="h-5 w-5 text-gray-500" />
-                  <div>
-                    <p className="font-medium">Location</p>
-                    <p className="text-sm text-gray-600">{profile.location || 'Not set'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Calendar className="h-5 w-5 text-gray-500" />
-                  <div>
-                    <p className="font-medium">Age</p>
-                    <p className="text-sm text-gray-600">{profile.age || 'Not set'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Trophy className="h-5 w-5 text-gray-500" />
-                  <div>
-                    <p className="font-medium">Playing Style</p>
-                    <Badge variant="secondary">{profile.playing_style || 'Not set'}</Badge>
-                  </div>
-                </div>
-              </div>
-              {profile.bio && (
-                <div className="mt-4">
-                  <p className="font-medium mb-2">About</p>
-                  <p className="text-sm text-gray-600">{profile.bio}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Main Content Tabs */}
-        <Tabs defaultValue="recommendations" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="recommendations">
-              <Users className="h-4 w-4 mr-2" />
-              Player Recommendations
-            </TabsTrigger>
-            <TabsTrigger value="availability">
-              <Clock className="h-4 w-4 mr-2" />
-              Availability
-            </TabsTrigger>
-            <TabsTrigger value="matches">
-              <Trophy className="h-4 w-4 mr-2" />
-              Recent Matches
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="recommendations">
-            <PlayerRecommendations />
-          </TabsContent>
-
-          <TabsContent value="availability">
-            <AvailabilityScheduler />
-          </TabsContent>
-
-          <TabsContent value="matches">
-            <Card>
-              <CardHeader>
-                <CardTitle>Recent Match Activity</CardTitle>
-                <CardDescription>
-                  Your recent matches and results
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-8">
-                  <Trophy className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 mb-4">No recent matches found</p>
-                  <Button onClick={() => window.location.href = '/matches'}>
-                    View All Matches
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        {/* Use Enhanced Player Recommendations */}
+        <EnhancedPlayerRecommendations />
       </div>
     </div>
   );

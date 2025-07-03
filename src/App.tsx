@@ -1,3 +1,4 @@
+
 import { Suspense } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -19,11 +20,16 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AppSidebar } from "./components/AppSidebar";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import ProfileCompletionCheck from "./components/ProfileCompletionCheck";
+import MobileOptimizedHeader from "./components/MobileOptimizedHeader";
+import MobileBottomNav from "./components/MobileBottomNav";
+import PWAInstallPrompt from "./components/PWAInstallPrompt";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const queryClient = new QueryClient();
 
 const AppContent = () => {
   const { user, loading } = useAuth();
+  const isMobile = useIsMobile();
 
   if (loading) {
     return (
@@ -36,14 +42,102 @@ const AppContent = () => {
   // If user is not authenticated, show routes without sidebar
   if (!user) {
     return (
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
+      <>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+        <PWAInstallPrompt />
+      </>
     );
   }
 
-  // If user is authenticated, show routes with sidebar
+  // Mobile layout with header and bottom navigation
+  if (isMobile) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <MobileOptimizedHeader />
+        <main className="flex-1 overflow-auto">
+          <Routes>
+            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route 
+              path="/onboarding" 
+              element={
+                <ProtectedRoute>
+                  <Onboarding />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/dashboard" 
+              element={
+                <ProtectedRoute>
+                  <ProfileCompletionCheck>
+                    <Dashboard />
+                  </ProfileCompletionCheck>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/find-players" 
+              element={
+                <ProtectedRoute>
+                  <ProfileCompletionCheck>
+                    <FindPlayers />
+                  </ProfileCompletionCheck>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/matches" 
+              element={
+                <ProtectedRoute>
+                  <ProfileCompletionCheck>
+                    <Matches />
+                  </ProfileCompletionCheck>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/messages" 
+              element={
+                <ProtectedRoute>
+                  <ProfileCompletionCheck>
+                    <Messages />
+                  </ProfileCompletionCheck>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/circles" 
+              element={
+                <ProtectedRoute>
+                  <ProfileCompletionCheck>
+                    <Circles />
+                  </ProfileCompletionCheck>
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/admin" 
+              element={
+                <ProtectedRoute>
+                  <ProfileCompletionCheck>
+                    <Admin />
+                  </ProfileCompletionCheck>
+                </ProtectedRoute>
+              } 
+            />
+            <Route path="*" element={<Navigate to="/dashboard" />} />
+          </Routes>
+        </main>
+        <MobileBottomNav />
+        <PWAInstallPrompt />
+      </div>
+    );
+  }
+
+  // Desktop layout with sidebar
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
@@ -51,9 +145,6 @@ const AppContent = () => {
         <SidebarInset className="flex-1">
           <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
             <SidebarTrigger className="-ml-1" />
-            <div className="ml-auto">
-              {/* You can add additional header content here */}
-            </div>
           </header>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" />} />
@@ -129,6 +220,7 @@ const AppContent = () => {
           </Routes>
         </SidebarInset>
       </div>
+      <PWAInstallPrompt />
     </SidebarProvider>
   );
 };
