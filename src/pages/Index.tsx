@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,28 +99,50 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
       {/* Enhanced Navigation */}
-      <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
-        <div className="container mx-auto px-4 py-4">
+      <nav className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70 shadow-sm">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
-            <div className="flex items-center space-x-3">
-              <div className="relative">
-                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+            <div className="flex items-center space-x-4">
+              <div className="relative group">
+                <div className="w-12 h-12 gradient-primary rounded-2xl flex items-center justify-center shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-105">
                   <span className="text-white font-bold text-xl font-bricolage">C</span>
                 </div>
-                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></div>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full animate-pulse shadow-lg"></div>
               </div>
-              <div>
-                <span className="font-bricolage font-bold text-2xl text-gray-900">CourtMate</span>
-                <Badge variant="secondary" className="ml-2 bg-emerald-100 text-emerald-700 font-medium">
+              <div className="flex flex-col">
+                <span className="font-bricolage font-bold text-2xl text-gray-900 tracking-tight">CourtMate</span>
+                <Badge variant="secondary" className="text-xs bg-gradient-to-r from-emerald-100 to-teal-100 text-emerald-700 font-medium border-emerald-200/50 shadow-sm">
+                  <Trophy className="w-3 h-3 mr-1" />
                   Tennis Community
                 </Badge>
               </div>
             </div>
+            
+            {/* Navigation Links for larger screens */}
+            <div className="hidden md:flex items-center space-x-8">
+              <a href="#features" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4">
+                Features
+              </a>
+              <a href="#how-it-works" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4">
+                How it Works
+              </a>
+              <a href="#testimonials" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4">
+                Reviews
+              </a>
+            </div>
+            
             <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={handleSignIn} className="font-medium">
+              <Button 
+                variant="ghost" 
+                onClick={handleSignIn} 
+                className="font-medium text-gray-700 hover:text-emerald-600 hover:bg-emerald-50 transition-all duration-200"
+              >
                 Sign In
               </Button>
-              <Button onClick={handleGetStarted} className="gradient-primary text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+              <Button 
+                onClick={handleGetStarted} 
+                className="gradient-primary text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 px-6 py-2.5 rounded-xl"
+              >
                 Get Started Free
                 <Sparkles className="ml-2 h-4 w-4" />
               </Button>
@@ -191,7 +212,7 @@ const Index = () => {
       </section>
 
       {/* How It Works - Creative Design */}
-      <section className="py-24 bg-gradient-to-br from-white to-gray-50">
+      <section id="how-it-works" className="py-24 bg-gradient-to-br from-white to-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <Badge className="mb-6 bg-blue-100 text-blue-700 px-4 py-2 font-medium">
@@ -251,7 +272,7 @@ const Index = () => {
       </section>
 
       {/* Features - Modern Grid */}
-      <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
+      <section id="features" className="py-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <Badge className="mb-6 bg-purple-100 text-purple-700 px-4 py-2 font-medium">
@@ -290,7 +311,7 @@ const Index = () => {
       </section>
 
       {/* Testimonials - Premium Layout */}
-      <section className="py-24 bg-gradient-to-br from-white to-emerald-50/30">
+      <section id="testimonials" className="py-24 bg-gradient-to-br from-white to-emerald-50/30">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-6 text-gray-900">
