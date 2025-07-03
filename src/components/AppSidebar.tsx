@@ -1,3 +1,4 @@
+
 import {
   LayoutDashboard,
   Users,
@@ -17,12 +18,10 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-} from "@/components/ui/sidebar-group"
+} from "@/components/ui/sidebar"
 import { useAuth } from "@/contexts/AuthContext"
 import { useEffect, useState } from "react"
 import { supabase } from "@/integrations/supabase/client"

@@ -279,7 +279,7 @@ export default function SafetyShareModal({
                       id="isPrimary"
                       checked={newContact.isPrimary}
                       onCheckedChange={(checked) => 
-                        setNewContact(prev => ({ ...prev, isPrimary: checked as boolean }))
+                        setNewContact(prev => ({ ...prev, isPrimary: checked === true }))
                       }
                     />
                     <Label htmlFor="isPrimary" className="text-sm">
@@ -351,7 +351,7 @@ export default function SafetyShareModal({
                 <Checkbox
                   id="shareLocation"
                   checked={shareLocation}
-                  onCheckedChange={setShareLocation}
+                  onCheckedChange={(checked) => setShareLocation(checked === true)}
                 />
                 <Label htmlFor="shareLocation" className="text-sm">
                   Share match location
@@ -362,7 +362,7 @@ export default function SafetyShareModal({
                 <Checkbox
                   id="shareOpponent"
                   checked={shareOpponentInfo}
-                  onCheckedChange={setShareOpponentInfo}
+                  onCheckedChange={(checked) => setShareOpponentInfo(checked === true)}
                 />
                 <Label htmlFor="shareOpponent" className="text-sm">
                   Share opponent information

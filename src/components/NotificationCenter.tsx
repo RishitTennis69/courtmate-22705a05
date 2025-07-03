@@ -75,8 +75,19 @@ export default function NotificationCenter() {
 
       if (error) throw error;
 
-      setNotifications(data || []);
-      setUnreadCount(data?.filter(n => !n.read_at).length || 0);
+      // Map the data to match our Notification interface
+      const mappedNotifications: Notification[] = (data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        body: item.body,
+        type: item.type as 'match_reminder' | 'new_message' | 'match_request' | 'general',
+        data: item.data,
+        read_at: item.read_at,
+        created_at: item.created_at
+      }));
+
+      setNotifications(mappedNotifications);
+      setUnreadCount(mappedNotifications.filter(n => !n.read_at).length);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }
