@@ -9,6 +9,27 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      blocked_users: {
+        Row: {
+          blocked_id: string
+          blocker_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          blocked_id: string
+          blocker_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          blocked_id?: string
+          blocker_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: []
+      }
       match_requests: {
         Row: {
           created_at: string
@@ -82,6 +103,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       player_ratings: {
         Row: {
@@ -159,6 +210,123 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      push_notifications: {
+        Row: {
+          body: string
+          created_at: string
+          data: Json | null
+          id: string
+          read_at: string | null
+          sent_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          read_at?: string | null
+          sent_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          data?: Json | null
+          id?: string
+          read_at?: string | null
+          sent_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      safety_contacts: {
+        Row: {
+          contact_email: string | null
+          contact_name: string
+          contact_phone: string
+          created_at: string
+          id: string
+          is_primary: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_name: string
+          contact_phone: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_name?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          is_primary?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      safety_shares: {
+        Row: {
+          estimated_duration_minutes: number | null
+          id: string
+          location_shared: boolean | null
+          match_request_id: string
+          opponent_info_shared: boolean | null
+          safety_contact_id: string
+          shared_at: string
+          user_id: string
+        }
+        Insert: {
+          estimated_duration_minutes?: number | null
+          id?: string
+          location_shared?: boolean | null
+          match_request_id: string
+          opponent_info_shared?: boolean | null
+          safety_contact_id: string
+          shared_at?: string
+          user_id: string
+        }
+        Update: {
+          estimated_duration_minutes?: number | null
+          id?: string
+          location_shared?: boolean | null
+          match_request_id?: string
+          opponent_info_shared?: boolean | null
+          safety_contact_id?: string
+          shared_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safety_shares_match_request_id_fkey"
+            columns: ["match_request_id"]
+            isOneToOne: false
+            referencedRelation: "match_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "safety_shares_safety_contact_id_fkey"
+            columns: ["safety_contact_id"]
+            isOneToOne: false
+            referencedRelation: "safety_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_availability: {
         Row: {
@@ -247,12 +415,52 @@ export type Database = {
         }
         Relationships: []
       }
+      user_reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          reason: string
+          reported_id: string
+          reporter_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: string
+          reported_id: string
+          reporter_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          reported_id?: string
+          reporter_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_unread_message_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      mark_messages_as_read: {
+        Args: { sender_user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

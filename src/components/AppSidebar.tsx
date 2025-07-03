@@ -1,100 +1,156 @@
-
-import { useState } from "react"
-import { Home, Users, MessageSquare, Users as CircleIcon, Settings, Search } from "lucide-react"
-import { NavLink, useLocation } from "react-router-dom"
-import { useAuth } from "@/contexts/AuthContext"
-
+import {
+  LayoutDashboard,
+  Users,
+  Search,
+  Trophy,
+  MessageSquare,
+  LogOut,
+} from "lucide-react"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarTrigger,
+} from "@/components/ui/sidebar"
+import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarHeader,
-  SidebarFooter,
-  useSidebar,
-} from "@/components/ui/sidebar"
-
-const navigationItems = [
-  { title: "Dashboard", url: "/dashboard", icon: Home },
-  { title: "Find Players", url: "/find-players", icon: Search },
-  { title: "Matches", url: "/matches", icon: Users },
-  { title: "Messages", url: "/messages", icon: MessageSquare },
-  { title: "Circles", url: "/circles", icon: CircleIcon },
-]
-
-const adminItems = [
-  { title: "Admin Panel", url: "/admin", icon: Settings },
-]
+} from "@/components/ui/sidebar-group"
+import { useAuth } from "@/contexts/AuthContext"
+import { useEffect, useState } from "react"
+import { supabase } from "@/integrations/supabase/client"
+import NotificationCenter from "./NotificationCenter";
 
 export function AppSidebar() {
-  const { state } = useSidebar()
   const location = useLocation()
-  const { user } = useAuth()
-  const currentPath = location.pathname
+  const navigate = useNavigate()
+  const { signOut, user } = useAuth()
+  const [userProfile, setUserProfile] = useState<{
+    full_name: string | null
+    profile_image_url: string | null
+    current_rating: number | null
+  } | null>(null)
 
-  const isActive = (path: string) => currentPath === path
-  const getNavCls = ({ isActive }: { isActive: boolean }) =>
-    isActive ? "bg-primary/10 text-primary font-medium" : "hover:bg-muted/50"
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from("user_profiles")
+          .select("full_name, profile_image_url, current_rating")
+          .eq("id", user.id)
+          .single()
 
-  // Check if user is admin (you can modify this logic based on your user roles system)
-  const isAdmin = user?.email === 'krish.s.grover@gmail.com'
+        if (error) {
+          console.error("Error fetching profile:", error)
+        } else {
+          setUserProfile(data)
+        }
+      }
+    }
+
+    fetchProfile()
+  }, [user])
+
+  const menuItems = [
+    {
+      title: "Dashboard",
+      icon: LayoutDashboard,
+      path: "/dashboard",
+    },
+    {
+      title: "Find Players",
+      icon: Search,
+      path: "/find-players",
+    },
+    {
+      title: "Matches",
+      icon: Trophy,
+      path: "/matches",
+    },
+    {
+      title: "Messages",
+      icon: MessageSquare,
+      path: "/messages",
+    },
+    {
+      title: "Circles",
+      icon: Users,
+      path: "/circles",
+    },
+  ]
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate("/")
+  }
 
   return (
-    <Sidebar className={state === "collapsed" ? "w-14" : "w-60"} collapsible="icon">
-      <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">CM</span>
-          </div>
-          {state === "expanded" && (
-            <span className="font-semibold text-lg">CourtMate</span>
-          )}
+    <Sidebar>
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-4 py-2">
+          <Trophy className="h-6 w-6 text-primary" />
+          <span className="font-semibold text-lg">TennisConnect</span>
         </div>
       </SidebarHeader>
-
+      
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {navigationItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
+            <nav className="space-y-2">
+              {menuItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
                   <SidebarMenuButton asChild>
-                    <NavLink to={item.url} className={getNavCls}>
+                    <Link 
+                      to={item.path}
+                      className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                        location.pathname === item.path 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                      }`}
+                    >
                       <item.icon className="h-4 w-4" />
-                      {state === "expanded" && <span>{item.title}</span>}
-                    </NavLink>
+                      <span>{item.title}</span>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
-            </SidebarMenu>
+            </nav>
           </SidebarGroupContent>
         </SidebarGroup>
-
-        {isAdmin && (
-          <SidebarGroup>
-            <SidebarGroupLabel>Admin</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {adminItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <NavLink to={item.url} className={getNavCls}>
-                        <item.icon className="h-4 w-4" />
-                        {state === "expanded" && <span>{item.title}</span>}
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
       </SidebarContent>
+      
+      <SidebarFooter>
+        <div className="flex items-center justify-between px-4 py-2">
+          <div className="flex items-center gap-2">
+            <Avatar className="h-8 w-8">
+              <AvatarImage src={userProfile?.profile_image_url} />
+              <AvatarFallback>
+                {userProfile?.full_name?.split(' ').map(n => n[0]).join('') || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex flex-col">
+              <span className="text-sm font-medium">{userProfile?.full_name || 'User'}</span>
+              <span className="text-xs text-muted-foreground">
+                Rating: {userProfile?.current_rating || 'N/A'}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <NotificationCenter />
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </SidebarFooter>
     </Sidebar>
-  )
+  );
 }

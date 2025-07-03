@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Calendar, Clock, MapPin, MessageCircle, Trophy, CheckCircle, X } from "lucide-react";
+import { Calendar, Clock, MapPin, MessageCircle, Trophy, CheckCircle, X, Shield } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import MatchRatingModal from "@/components/MatchRatingModal";
+import SafetyShareModal from "@/components/SafetyShareModal";
 
 interface MatchRequest {
   id: string;
@@ -45,6 +46,19 @@ const Matches = () => {
     matchResultId: '',
     opponentName: '',
     opponentId: ''
+  });
+  const [safetyModal, setSafetyModal] = useState<{
+    isOpen: boolean;
+    matchRequestId: string;
+    opponentName: string;
+    location: string;
+    scheduledTime: string;
+  }>({
+    isOpen: false,
+    matchRequestId: '',
+    opponentName: '',
+    location: '',
+    scheduledTime: ''
   });
   const { user } = useAuth();
   const { toast } = useToast();
@@ -179,6 +193,21 @@ const Matches = () => {
     }
   };
 
+  const handleSafetyShare = (match: MatchRequest) => {
+    const isRequester = match.requester_id === user?.id;
+    const opponent = isRequester ? match.requested : match.requester;
+    
+    setSafetyModal({
+      isOpen: true,
+      matchRequestId: match.id,
+      opponentName: opponent.full_name,
+      location: match.location || 'TBD',
+      scheduledTime: match.proposed_datetime 
+        ? new Date(match.proposed_datetime).toLocaleString()
+        : 'TBD'
+    });
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -269,13 +298,23 @@ const Matches = () => {
               )}
               
               {match.status === 'accepted' && (
-                <Button
-                  size="sm"
-                  onClick={() => completeMatch(match.id, opponentId, opponent.full_name)}
-                >
-                  <Trophy className="h-4 w-4 mr-1" />
-                  Complete Match
-                </Button>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleSafetyShare(match)}
+                  >
+                    <Shield className="h-4 w-4 mr-1" />
+                    Share Safety Info
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => completeMatch(match.id, opponentId, opponent.full_name)}
+                  >
+                    <Trophy className="h-4 w-4 mr-1" />
+                    Complete Match
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -361,6 +400,15 @@ const Matches = () => {
         matchResultId={ratingModal.matchResultId}
         opponentName={ratingModal.opponentName}
         opponentId={ratingModal.opponentId}
+      />
+
+      <SafetyShareModal
+        isOpen={safetyModal.isOpen}
+        onClose={() => setSafetyModal(prev => ({ ...prev, isOpen: false }))}
+        matchRequestId={safetyModal.matchRequestId}
+        opponentName={safetyModal.opponentName}
+        location={safetyModal.location}
+        scheduledTime={safetyModal.scheduledTime}
       />
     </div>
   );
