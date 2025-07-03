@@ -15,9 +15,9 @@ import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfileCompletionCheck from "./components/ProfileCompletionCheck";
+import AppLayout from "./components/AppLayout";
 import { AuthProvider } from "./contexts/AuthContext";
 import PWAInstallPrompt from "./components/PWAInstallPrompt";
-import MobileBottomNav from "./components/MobileBottomNav";
 import { CapacitorService } from "./services/capacitorService";
 import "./App.css";
 
@@ -47,49 +47,63 @@ function App() {
               <Route path="/dashboard" element={
                 <ProtectedRoute>
                   <ProfileCompletionCheck>
-                    <Dashboard />
+                    <AppLayout>
+                      <Dashboard />
+                    </AppLayout>
                   </ProfileCompletionCheck>
                 </ProtectedRoute>
               } />
               <Route path="/find-players" element={
                 <ProtectedRoute>
                   <ProfileCompletionCheck>
-                    <FindPlayers />
+                    <AppLayout>
+                      <FindPlayers />
+                    </AppLayout>
                   </ProfileCompletionCheck>
                 </ProtectedRoute>
               } />
               <Route path="/matches" element={
                 <ProtectedRoute>
                   <ProfileCompletionCheck>
-                    <Matches />
+                    <AppLayout>
+                      <Matches />
+                    </AppLayout>
                   </ProfileCompletionCheck>
                 </ProtectedRoute>
               } />
               <Route path="/messages" element={
                 <ProtectedRoute>
                   <ProfileCompletionCheck>
-                    <Messages />
+                    <AppLayout>
+                      <Messages />
+                    </AppLayout>
                   </ProfileCompletionCheck>
                 </ProtectedRoute>
               } />
               <Route path="/circles" element={
                 <ProtectedRoute>
                   <ProfileCompletionCheck>
-                    <Circles />
+                    <AppLayout>
+                      <Circles />
+                    </AppLayout>
                   </ProfileCompletionCheck>
                 </ProtectedRoute>
               } />
               <Route path="/settings" element={
                 <ProtectedRoute>
                   <ProfileCompletionCheck>
-                    <Settings />
+                    <AppLayout>
+                      <Settings />
+                    </AppLayout>
                   </ProfileCompletionCheck>
                 </ProtectedRoute>
               } />
               <Route path="/admin" element={
                 <ProtectedRoute>
                   <ProfileCompletionCheck>
-                    <Admin />
+                    <AppLayout>
+                      <Admin />
+                    </AppLayout>
                   </ProfileCompletionCheck>
                 </ProtectedRoute>
               } />
@@ -97,7 +111,6 @@ function App() {
             </Routes>
             <Toaster />
             <PWAInstallPrompt />
-            <MobileBottomNav />
           </div>
         </Router>
       </AuthProvider>
