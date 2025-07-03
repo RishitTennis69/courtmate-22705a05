@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
 import LocationAutocomplete from "@/components/LocationAutocomplete"
+import MutualAvailabilityModal from "@/components/MutualAvailabilityModal"
+import SmartSchedulingWidget from "@/components/SmartSchedulingWidget"
 
 // Mock data for demonstration
 const mockPlayers = [
@@ -48,12 +50,37 @@ export default function FindPlayers() {
   const [ratingRange, setRatingRange] = useState([3.0, 5.0])
   const [selectedLocation, setSelectedLocation] = useState("")
   const [playingStyle, setPlayingStyle] = useState("")
+  const [availabilityModal, setAvailabilityModal] = useState<{
+    isOpen: boolean;
+    playerId: string;
+    playerName: string;
+  }>({
+    isOpen: false,
+    playerId: "",
+    playerName: ""
+  })
 
   const filteredPlayers = mockPlayers.filter(player => 
     player.name.toLowerCase().includes(searchTerm.toLowerCase()) &&
     player.rating >= ratingRange[0] && 
     player.rating <= ratingRange[1]
   )
+
+  const handleScheduleMatch = (suggestion: any) => {
+    setAvailabilityModal({
+      isOpen: true,
+      playerId: suggestion.opponentId,
+      playerName: suggestion.opponentName
+    });
+  };
+
+  const handleMatchPlayer = (playerId: string, playerName: string) => {
+    setAvailabilityModal({
+      isOpen: true,
+      playerId,
+      playerName
+    });
+  };
 
   return (
     <div className="flex-1 space-y-6 p-6">
@@ -64,6 +91,9 @@ export default function FindPlayers() {
           Advanced Filters
         </Button>
       </div>
+
+      {/* Smart Scheduling Widget */}
+      <SmartSchedulingWidget onScheduleMatch={handleScheduleMatch} />
 
       {/* Search and Filters */}
       <Card>
@@ -170,8 +200,12 @@ export default function FindPlayers() {
               </Badge>
 
               <div className="flex gap-2 pt-2">
-                <Button className="flex-1" size="sm">
-                  Challenge
+                <Button 
+                  className="flex-1" 
+                  size="sm"
+                  onClick={() => handleMatchPlayer(player.id, player.name)}
+                >
+                  Schedule Match
                 </Button>
                 <Button variant="outline" size="sm">
                   Message
@@ -191,6 +225,18 @@ export default function FindPlayers() {
           </CardContent>
         </Card>
       )}
+
+      {/* Mutual Availability Modal */}
+      <MutualAvailabilityModal
+        isOpen={availabilityModal.isOpen}
+        onClose={() => setAvailabilityModal(prev => ({ ...prev, isOpen: false }))}
+        opponentId={availabilityModal.playerId}
+        opponentName={availabilityModal.playerName}
+        onMatchRequested={() => {
+          // Handle successful match request
+          console.log('Match request sent successfully');
+        }}
+      />
     </div>
   )
 }
