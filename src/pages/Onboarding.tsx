@@ -1,34 +1,48 @@
 
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { 
+  ArrowRight, 
+  ArrowLeft, 
+  User, 
+  MapPin, 
+  Calendar, 
+  Trophy, 
+  Target,
+  CheckCircle,
+  Star,
+  Clock,
+  Zap
+} from "lucide-react";
 
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
+    name: "",
     age: "",
     location: "",
-    skillLevel: "",
     playingStyle: "",
+    experience: "",
     availability: "",
+    goals: ""
   });
   const navigate = useNavigate();
 
-  const totalSteps = 4;
+  const totalSteps = 5;
   const progress = (currentStep / totalSteps) * 100;
 
   const handleNext = () => {
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Complete onboarding and redirect to dashboard
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   };
 
@@ -38,37 +52,76 @@ const Onboarding = () => {
     }
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const renderStep = () => {
+  const steps = [
+    {
+      title: "Personal Info",
+      description: "Tell us about yourself",
+      icon: User,
+      color: "from-blue-400 to-purple-500"
+    },
+    {
+      title: "Location & Preferences", 
+      description: "Where do you like to play?",
+      icon: MapPin,
+      color: "from-emerald-400 to-teal-500"
+    },
+    {
+      title: "Playing Style",
+      description: "What's your tennis style?",
+      icon: Target,
+      color: "from-orange-400 to-red-500"
+    },
+    {
+      title: "Skill Assessment",
+      description: "Help us understand your level",
+      icon: Trophy,
+      color: "from-yellow-400 to-orange-500"
+    },
+    {
+      title: "Availability",
+      description: "When do you prefer to play?",
+      icon: Calendar,
+      color: "from-purple-400 to-pink-500"
+    }
+  ];
+
+  const renderStepContent = () => {
     switch (currentStep) {
       case 1:
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">Tell us about yourself</h2>
-              <p className="text-muted-foreground">We'll use this information to match you with the right players.</p>
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <User className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Welcome to CourtMate!</h2>
+              <p className="text-gray-600 text-lg">Let's get to know you better</p>
             </div>
+            
             <div className="space-y-4">
               <div>
-                <Label htmlFor="age">Age</Label>
+                <Label htmlFor="name" className="text-base font-medium text-gray-900">Full Name</Label>
+                <Input
+                  id="name"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={(e) => updateFormData("name", e.target.value)}
+                  className="mt-2 h-12 text-lg border-2 border-gray-200 focus:border-emerald-500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="age" className="text-base font-medium text-gray-900">Age</Label>
                 <Input
                   id="age"
                   type="number"
                   placeholder="Enter your age"
                   value={formData.age}
-                  onChange={(e) => handleInputChange('age', e.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="location">Location</Label>
-                <Input
-                  id="location"
-                  placeholder="City, State"
-                  value={formData.location}
-                  onChange={(e) => handleInputChange('location', e.target.value)}
+                  onChange={(e) => updateFormData("age", e.target.value)}
+                  className="mt-2 h-12 text-lg border-2 border-gray-200 focus:border-emerald-500"
                 />
               </div>
             </div>
@@ -78,75 +131,56 @@ const Onboarding = () => {
       case 2:
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">What's your skill level?</h2>
-              <p className="text-muted-foreground">Choose the NTRP rating that best describes your current level.</p>
-            </div>
-            <RadioGroup value={formData.skillLevel} onValueChange={(value) => handleInputChange('skillLevel', value)}>
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="1.0-2.0" id="beginner" />
-                  <div className="flex-1">
-                    <Label htmlFor="beginner" className="font-medium">1.0 - 2.0 (Beginner)</Label>
-                    <p className="text-sm text-muted-foreground">Learning basic strokes and rules</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="2.5-3.0" id="intermediate" />
-                  <div className="flex-1">
-                    <Label htmlFor="intermediate" className="font-medium">2.5 - 3.0 (Intermediate)</Label>
-                    <p className="text-sm text-muted-foreground">Consistent groundstrokes, learning strategy</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="3.5-4.0" id="advanced" />
-                  <div className="flex-1">
-                    <Label htmlFor="advanced" className="font-medium">3.5 - 4.0 (Advanced)</Label>
-                    <p className="text-sm text-muted-foreground">Good control, variety of shots</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="4.5+" id="expert" />
-                  <div className="flex-1">
-                    <Label htmlFor="expert" className="font-medium">4.5+ (Expert)</Label>
-                    <p className="text-sm text-muted-foreground">Tournament level play</p>
-                  </div>
-                </div>
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-emerald-400 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-8 h-8 text-white" />
               </div>
-            </RadioGroup>
+              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Where do you play?</h2>
+              <p className="text-gray-600 text-lg">Help us find players near you</p>
+            </div>
+            
+            <div>
+              <Label htmlFor="location" className="text-base font-medium text-gray-900">Location</Label>
+              <Input
+                id="location"
+                placeholder="City, State or ZIP code"
+                value={formData.location}
+                onChange={(e) => updateFormData("location", e.target.value)}
+                className="mt-2 h-12 text-lg border-2 border-gray-200 focus:border-emerald-500"
+              />
+            </div>
           </div>
         );
 
       case 3:
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">What's your playing style?</h2>
-              <p className="text-muted-foreground">This helps us match you with compatible players.</p>
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-orange-400 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Target className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Playing Style</h2>
+              <p className="text-gray-600 text-lg">What describes your tennis style best?</p>
             </div>
-            <RadioGroup value={formData.playingStyle} onValueChange={(value) => handleInputChange('playingStyle', value)}>
+            
+            <RadioGroup value={formData.playingStyle} onValueChange={(value) => updateFormData("playingStyle", value)}>
               <div className="space-y-3">
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="aggressive" id="aggressive" />
-                  <div className="flex-1">
-                    <Label htmlFor="aggressive" className="font-medium">Aggressive</Label>
-                    <p className="text-sm text-muted-foreground">Fast-paced, attacking style</p>
+                {[
+                  { value: "aggressive", label: "Aggressive Baseliner", desc: "Power shots from the baseline" },
+                  { value: "defensive", label: "Defensive Counter-Puncher", desc: "Strategic defensive play" },
+                  { value: "serve-volley", label: "Serve & Volley", desc: "Net-rushing style" },
+                  { value: "all-court", label: "All-Court Player", desc: "Versatile playing style" }
+                ].map((style) => (
+                  <div key={style.value} className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
+                    <RadioGroupItem value={style.value} id={style.value} />
+                    <div className="flex-1">
+                      <Label htmlFor={style.value} className="font-semibold text-gray-900 cursor-pointer">
+                        {style.label}
+                      </Label>
+                      <p className="text-sm text-gray-600">{style.desc}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="defensive" id="defensive" />
-                  <div className="flex-1">
-                    <Label htmlFor="defensive" className="font-medium">Defensive</Label>
-                    <p className="text-sm text-muted-foreground">Consistent, patient baseline play</p>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="all-court" id="all-court" />
-                  <div className="flex-1">
-                    <Label htmlFor="all-court" className="font-medium">All-Court</Label>
-                    <p className="text-sm text-muted-foreground">Versatile, adaptable game</p>
-                  </div>
-                </div>
+                ))}
               </div>
             </RadioGroup>
           </div>
@@ -155,36 +189,70 @@ const Onboarding = () => {
       case 4:
         return (
           <div className="space-y-6">
-            <div>
-              <h2 className="text-2xl font-bold mb-2">When do you prefer to play?</h2>
-              <p className="text-muted-foreground">We'll help schedule matches during your preferred times.</p>
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Trophy className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Skill Level</h2>
+              <p className="text-gray-600 text-lg">How would you rate your tennis skills?</p>
             </div>
-            <RadioGroup value={formData.availability} onValueChange={(value) => handleInputChange('availability', value)}>
+            
+            <RadioGroup value={formData.experience} onValueChange={(value) => updateFormData("experience", value)}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { value: "beginner", label: "Beginner", desc: "NTRP 1.0-2.5", stars: 1 },
+                  { value: "intermediate", label: "Intermediate", desc: "NTRP 3.0-3.5", stars: 3 },
+                  { value: "advanced", label: "Advanced", desc: "NTRP 4.0-4.5", stars: 4 },
+                  { value: "expert", label: "Expert", desc: "NTRP 5.0+", stars: 5 }
+                ].map((level) => (
+                  <div key={level.value} className="flex items-center space-x-3 p-6 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
+                    <RadioGroupItem value={level.value} id={level.value} />
+                    <div className="flex-1">
+                      <Label htmlFor={level.value} className="font-semibold text-gray-900 cursor-pointer text-lg">
+                        {level.label}
+                      </Label>
+                      <p className="text-sm text-gray-600 mb-2">{level.desc}</p>
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className={`w-4 h-4 ${i < level.stars ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300'}`} />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </RadioGroup>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">When do you play?</h2>
+              <p className="text-gray-600 text-lg">Tell us your preferred playing times</p>
+            </div>
+            
+            <RadioGroup value={formData.availability} onValueChange={(value) => updateFormData("availability", value)}>
               <div className="space-y-3">
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="mornings" id="mornings" />
-                  <div className="flex-1">
-                    <Label htmlFor="mornings" className="font-medium">Mornings (6AM - 12PM)</Label>
+                {[
+                  { value: "morning", label: "Morning (6 AM - 12 PM)", icon: "🌅" },
+                  { value: "afternoon", label: "Afternoon (12 PM - 6 PM)", icon: "☀️" },
+                  { value: "evening", label: "Evening (6 PM - 10 PM)", icon: "🌆" },
+                  { value: "weekend", label: "Weekends Only", icon: "🏖️" },
+                  { value: "flexible", label: "Flexible - Anytime", icon: "⏰" }
+                ].map((time) => (
+                  <div key={time.value} className="flex items-center space-x-4 p-4 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
+                    <RadioGroupItem value={time.value} id={time.value} />
+                    <span className="text-2xl">{time.icon}</span>
+                    <Label htmlFor={time.value} className="font-semibold text-gray-900 cursor-pointer text-lg">
+                      {time.label}
+                    </Label>
                   </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="afternoons" id="afternoons" />
-                  <div className="flex-1">
-                    <Label htmlFor="afternoons" className="font-medium">Afternoons (12PM - 6PM)</Label>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="evenings" id="evenings" />
-                  <div className="flex-1">
-                    <Label htmlFor="evenings" className="font-medium">Evenings (6PM - 10PM)</Label>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-2 p-3 border rounded-lg hover:bg-muted/50">
-                  <RadioGroupItem value="weekends" id="weekends" />
-                  <div className="flex-1">
-                    <Label htmlFor="weekends" className="font-medium">Weekends</Label>
-                  </div>
-                </div>
+                ))}
               </div>
             </RadioGroup>
           </div>
@@ -196,39 +264,97 @@ const Onboarding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <Card className="w-full max-w-2xl">
-        <CardHeader>
-          <div className="flex items-center justify-between mb-4">
-            <CardTitle>Getting Started</CardTitle>
-            <span className="text-sm text-muted-foreground">
-              Step {currentStep} of {totalSteps}
-            </span>
-          </div>
-          <Progress value={progress} className="mb-2" />
-          <CardDescription>
-            Let's set up your tennis profile to find the perfect matches
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {renderStep()}
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/20 flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl">
+        {/* Progress Header */}
+        <div className="text-center mb-8">
+          <Badge className="mb-4 bg-emerald-100 text-emerald-700 px-4 py-2 font-medium">
+            <Zap className="mr-2 h-4 w-4" />
+            Quick Setup
+          </Badge>
+          <h1 className="font-bricolage text-4xl font-bold text-gray-900 mb-2">
+            Let's set up your profile
+          </h1>
+          <p className="text-gray-600 text-lg mb-6">
+            This will help us match you with the perfect tennis partners
+          </p>
           
-          <div className="flex justify-between mt-8">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 1}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Previous
-            </Button>
-            <Button onClick={handleNext}>
-              {currentStep === totalSteps ? 'Complete Setup' : 'Next'}
-              {currentStep !== totalSteps && <ArrowRight className="ml-2 h-4 w-4" />}
-            </Button>
+          {/* Progress Bar */}
+          <div className="max-w-md mx-auto">
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium text-gray-600">Step {currentStep} of {totalSteps}</span>
+              <span className="text-sm font-medium text-emerald-600">{Math.round(progress)}%</span>
+            </div>
+            <Progress value={progress} className="h-3" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+
+        {/* Steps Indicator */}
+        <div className="flex justify-center mb-12">
+          <div className="flex items-center space-x-4">
+            {steps.map((step, index) => {
+              const stepNumber = index + 1;
+              const isActive = stepNumber === currentStep;
+              const isCompleted = stepNumber < currentStep;
+              
+              return (
+                <div key={stepNumber} className="flex items-center">
+                  <div className={`
+                    w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300
+                    ${isActive ? `bg-gradient-to-r ${step.color} shadow-lg scale-110` : 
+                      isCompleted ? 'bg-emerald-500' : 'bg-gray-200'}
+                  `}>
+                    {isCompleted ? (
+                      <CheckCircle className="w-6 h-6 text-white" />
+                    ) : (
+                      <step.icon className={`w-6 h-6 ${isActive ? 'text-white' : 'text-gray-500'}`} />
+                    )}
+                  </div>
+                  {index < steps.length - 1 && (
+                    <div className={`w-12 h-1 mx-2 rounded-full transition-all duration-300 ${
+                      stepNumber < currentStep ? 'bg-emerald-500' : 'bg-gray-200'
+                    }`} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Main Card */}
+        <Card className="glass-card border-0 shadow-2xl max-w-2xl mx-auto">
+          <CardContent className="p-12">
+            {renderStepContent()}
+          </CardContent>
+        </Card>
+
+        {/* Navigation */}
+        <div className="flex justify-between items-center mt-8 max-w-2xl mx-auto">
+          <Button
+            variant="outline"
+            onClick={handlePrevious}
+            disabled={currentStep === 1}
+            className="px-8 py-3 text-lg border-2"
+          >
+            <ArrowLeft className="mr-2 h-5 w-5" />
+            Previous
+          </Button>
+          
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Step {currentStep} of {totalSteps}
+            </p>
+          </div>
+          
+          <Button
+            onClick={handleNext}
+            className="px-8 py-3 text-lg gradient-primary text-white shadow-lg hover:shadow-xl transition-all duration-300"
+          >
+            {currentStep === totalSteps ? "Complete Setup" : "Next Step"}
+            <ArrowRight className="ml-2 h-5 w-5" />
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

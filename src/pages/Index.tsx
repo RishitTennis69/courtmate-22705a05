@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Users, Calendar, MessageSquare, Trophy, ArrowRight, Zap, MapPin, Shield, Star } from "lucide-react";
+import { Users, Calendar, MessageSquare, Trophy, ArrowRight, Zap, MapPin, Shield, Star, Play, CheckCircle, Sparkles, Target, Clock, Award } from "lucide-react";
 import AuthModal from "@/components/AuthModal";
 
 const Index = () => {
@@ -23,41 +23,51 @@ const Index = () => {
   const features = [
     {
       icon: Zap,
-      title: "Smart Matching",
-      description: "AI-powered algorithm matches you with players of similar skill level and availability"
+      title: "AI-Powered Matching",
+      description: "Advanced algorithms match you with perfect tennis partners based on skill, schedule, and playing style",
+      gradient: "from-yellow-400 to-orange-500"
     },
     {
       icon: Users,
-      title: "Local Community",
-      description: "Connect with tennis players in your area and build lasting tennis friendships"
+      title: "Vibrant Community",
+      description: "Join thousands of passionate tennis players and build lasting connections on and off the court",
+      gradient: "from-blue-400 to-purple-500"
     },
     {
       icon: Calendar,
-      title: "Easy Scheduling",
-      description: "Coordinate matches with integrated calendar and availability tracking"
+      title: "Smart Scheduling",
+      description: "Integrated calendar system finds the perfect time slots that work for both you and your partner",
+      gradient: "from-green-400 to-teal-500"
     },
     {
       icon: Shield,
-      title: "Secure Platform",
-      description: "Safe and verified community with trusted player profiles and reviews"
+      title: "Safety First",
+      description: "Verified profiles, secure messaging, and safety features ensure a trusted playing environment",
+      gradient: "from-red-400 to-pink-500"
     }
   ];
 
   const steps = [
     {
-      number: "1",
+      number: "01",
       title: "Create Your Profile",
-      description: "Create your account and complete a simple NTRP assessment"
+      description: "Build your tennis identity with our skill assessment and preferences setup",
+      icon: Target,
+      color: "bg-emerald-500"
     },
     {
-      number: "2",
-      title: "Find Players",
-      description: "Browse players at your skill level who match your schedule"
+      number: "02", 
+      title: "Find Perfect Matches",
+      description: "Discover players who match your skill level, schedule, and playing style",
+      icon: Users,
+      color: "bg-blue-500"
     },
     {
-      number: "3",
-      title: "Play Tennis",
-      description: "Connect, schedule matches, and enjoy playing with perfect partners"
+      number: "03",
+      title: "Play & Improve",
+      description: "Schedule matches, track progress, and elevate your tennis game together",
+      icon: Trophy,
+      color: "bg-purple-500"
     }
   ];
 
@@ -66,108 +76,158 @@ const Index = () => {
       name: "Kairav Kumar",
       title: "UTR Tennis Champion",
       rating: 5,
-      text: "CourtMate has helped me improve so much. I constantly have a match to play when I want one with a player at my skill level. These close matches allow me to gain experience and mentally be prepared for such situations. CourtMate is a must use!",
-      avatar: "KK"
+      text: "CourtMate revolutionized my tennis journey. The quality of matches and players I've met is incredible. My game has improved dramatically!",
+      avatar: "KK",
+      gradient: "from-emerald-400 to-teal-500"
     },
     {
-      name: "Punj Agrawal",
-      title: "State Level Tennis Champion",
+      name: "Punj Agrawal", 
+      title: "State Level Champion",
       rating: 5,
-      text: "CourtMate has made it so easy to find tennis partners near me who actually match my level. I've been playing more consistently and having way more fun on the court since I started using the website.",
-      avatar: "PA"
+      text: "Finding the right tennis partners used to be impossible. CourtMate changed everything - now I play with amazing players every week!",
+      avatar: "PA",
+      gradient: "from-blue-400 to-purple-500"
     }
   ];
 
+  const stats = [
+    { number: "10K+", label: "Active Players", icon: Users },
+    { number: "50K+", label: "Matches Played", icon: Trophy },
+    { number: "95%", label: "Match Success Rate", icon: CheckCircle },
+    { number: "4.9★", label: "User Rating", icon: Star }
+  ];
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">C</span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+      {/* Enhanced Navigation */}
+      <nav className="sticky top-0 z-50 border-b bg-white/80 backdrop-blur-xl supports-[backdrop-filter]:bg-white/60">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-3">
+              <div className="relative">
+                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-xl font-bricolage">C</span>
+                </div>
+                <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full animate-pulse"></div>
+              </div>
+              <div>
+                <span className="font-bricolage font-bold text-2xl text-gray-900">CourtMate</span>
+                <Badge variant="secondary" className="ml-2 bg-emerald-100 text-emerald-700 font-medium">
+                  Tennis Community
+                </Badge>
+              </div>
             </div>
-            <span className="font-bold text-xl">CourtMate</span>
-            <Badge variant="secondary" className="ml-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-              Tennis Partner Platform
-            </Badge>
-          </div>
-          <div className="flex items-center space-x-4">
-            <Button variant="ghost" onClick={handleSignIn}>Sign In</Button>
-            <Button className="bg-emerald-500 hover:bg-emerald-600" onClick={handleGetStarted}>
-              Get Started
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button variant="ghost" onClick={handleSignIn} className="font-medium">
+                Sign In
+              </Button>
+              <Button onClick={handleGetStarted} className="gradient-primary text-white font-medium shadow-lg hover:shadow-xl transition-all duration-300">
+                Get Started Free
+                <Sparkles className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-background to-emerald-50/30"></div>
-        <div className="container mx-auto px-4 py-24 relative">
-          <div className="max-w-4xl mx-auto text-center">
-            <Badge className="mb-6 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+      {/* Hero Section - Premium Design */}
+      <section className="relative overflow-hidden py-20 lg:py-32">
+        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-white to-blue-50/30"></div>
+        <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/30 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-20 right-10 w-40 h-40 bg-blue-200/30 rounded-full blur-3xl animate-float" style={{animationDelay: '1s'}}></div>
+        
+        <div className="container mx-auto px-4 relative">
+          <div className="max-w-5xl mx-auto text-center">
+            <Badge className="mb-8 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-2 text-sm font-medium animate-slide-up">
+              <Trophy className="mr-2 h-4 w-4" />
               #1 Tennis Community Platform
             </Badge>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-tight">
+            
+            <h1 className="font-bricolage text-5xl md:text-7xl lg:text-8xl font-bold mb-8 tracking-tight animate-slide-up stagger-1">
               Find Your Perfect
               <br />
-              <span className="text-emerald-500">Tennis Partner</span>
+              <span className="gradient-text-primary">Tennis Partner</span>
             </h1>
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-3xl mx-auto leading-relaxed">
-              Connect with local tennis players, improve your game, and build lasting friendships on and off the court.
+            
+            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed animate-slide-up stagger-2">
+              Connect with passionate tennis players, improve your skills, and build lasting friendships. 
+              <br className="hidden md:block" />
+              <span className="font-medium text-gray-800">Join the future of tennis networking.</span>
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16">
+            
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-slide-up stagger-3">
               <Button 
                 size="lg" 
-                className="px-8 py-6 text-lg font-medium bg-emerald-500 hover:bg-emerald-600"
                 onClick={handleGetStarted}
+                className="px-10 py-6 text-lg font-semibold gradient-primary text-white shadow-2xl hover:shadow-emerald-500/25 transform hover:scale-105 transition-all duration-300 animate-glow"
               >
+                <Play className="mr-2 h-5 w-5" />
                 Start Playing Today
-                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button 
                 variant="outline" 
                 size="lg"
-                className="px-8 py-6 text-lg border-emerald-200 hover:bg-emerald-50"
+                className="px-10 py-6 text-lg font-medium border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300"
               >
+                <Clock className="mr-2 h-5 w-5" />
                 How It Works
               </Button>
+            </div>
+
+            {/* Stats Row */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 animate-slide-up stagger-4">
+              {stats.map((stat, index) => (
+                <div key={index} className="text-center">
+                  <div className="flex justify-center mb-2">
+                    <stat.icon className="h-6 w-6 text-emerald-500" />
+                  </div>
+                  <div className="font-bricolage text-3xl font-bold text-gray-900">{stat.number}</div>
+                  <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-24 bg-background">
+      {/* How It Works - Creative Design */}
+      <section className="py-24 bg-gradient-to-br from-white to-gray-50">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
-              Getting Started
+          <div className="text-center mb-20">
+            <Badge className="mb-6 bg-blue-100 text-blue-700 px-4 py-2 font-medium">
+              <Zap className="mr-2 h-4 w-4" />
+              Getting Started Is Easy
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Find Your Perfect Tennis Match
+            <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-6 text-gray-900">
+              Three Simple Steps to
               <br />
-              <span className="text-emerald-500">in 3 Easy Steps</span>
+              <span className="gradient-text-primary">Tennis Success</span>
             </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Join our community and start your tennis journey in minutes
+            </p>
           </div>
 
-          <div className="max-w-5xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-              {/* Connection lines */}
-              <div className="hidden md:block absolute top-16 left-1/3 right-1/3 h-0.5 bg-emerald-200"></div>
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 relative">
+              {/* Connection lines for desktop */}
+              <div className="hidden lg:block absolute top-20 left-1/3 right-1/3 h-0.5 bg-gradient-to-r from-emerald-200 via-blue-200 to-purple-200"></div>
               
               {steps.map((step, index) => (
-                <div key={index} className="text-center relative">
-                  <div className="w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 text-white text-2xl font-bold relative z-10">
-                    {step.number}
+                <div key={index} className="text-center relative group">
+                  <div className={`w-20 h-20 ${step.color} rounded-2xl flex items-center justify-center mx-auto mb-8 shadow-xl group-hover:scale-110 transition-all duration-300 relative z-10`}>
+                    <step.icon className="w-8 h-8 text-white" />
+                    <div className="absolute -top-2 -right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg">
+                      <span className="font-bold text-sm text-gray-800">{step.number}</span>
+                    </div>
                   </div>
-                  <Card className="border-emerald-100 shadow-sm hover:shadow-md transition-all duration-300">
+                  
+                  <Card className="glass-card floating-card border-0 shadow-xl">
                     <CardHeader className="pb-4">
-                      <CardTitle className="text-xl">{step.title}</CardTitle>
+                      <CardTitle className="font-bricolage text-2xl text-gray-900">{step.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <CardDescription className="text-center leading-relaxed">
+                      <CardDescription className="text-center leading-relaxed text-gray-600 text-lg">
                         {step.description}
                       </CardDescription>
                     </CardContent>
@@ -176,47 +236,50 @@ const Index = () => {
               ))}
             </div>
 
-            <div className="text-center mt-12">
+            <div className="text-center mt-16">
               <Button 
                 size="lg" 
-                className="bg-emerald-500 hover:bg-emerald-600"
                 onClick={handleGetStarted}
+                className="px-8 py-4 text-lg gradient-primary text-white shadow-lg hover:shadow-xl transition-all duration-300"
               >
-                Get Started Now
+                <Award className="mr-2 h-5 w-5" />
+                Join the Community
               </Button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-24 bg-emerald-50/30">
+      {/* Features - Modern Grid */}
+      <section className="py-24 bg-gradient-to-br from-gray-50 to-white">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-emerald-100 text-emerald-700 hover:bg-emerald-100">
+          <div className="text-center mb-20">
+            <Badge className="mb-6 bg-purple-100 text-purple-700 px-4 py-2 font-medium">
+              <Sparkles className="mr-2 h-4 w-4" />
               Why Choose CourtMate?
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">
+            <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-6 text-gray-900">
               Everything You Need to
               <br />
-              <span className="text-emerald-500">Excel at Tennis</span>
+              <span className="gradient-text-primary">Excel at Tennis</span>
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Join the largest tennis community platform and discover your perfect playing partner today
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Discover powerful features designed to elevate your tennis experience and connect you with the perfect playing partners
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
             {features.map((feature, index) => (
-              <Card key={index} className="border-emerald-100 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="text-center pb-4">
-                  <div className="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <feature.icon className="w-6 h-6 text-white" />
+              <Card key={index} className="glass-card floating-card border-0 shadow-xl group overflow-hidden">
+                <div className={`h-2 bg-gradient-to-r ${feature.gradient}`}></div>
+                <CardHeader className="text-center pb-6">
+                  <div className={`w-16 h-16 bg-gradient-to-r ${feature.gradient} rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-all duration-300`}>
+                    <feature.icon className="w-8 h-8 text-white" />
                   </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
+                  <CardTitle className="font-bricolage text-2xl text-gray-900">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription className="text-center leading-relaxed">
+                  <CardDescription className="text-center leading-relaxed text-gray-600 text-lg">
                     {feature.description}
                   </CardDescription>
                 </CardContent>
@@ -226,35 +289,40 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section className="py-24 bg-background">
+      {/* Testimonials - Premium Layout */}
+      <section className="py-24 bg-gradient-to-br from-white to-emerald-50/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">What Our Players Say</h2>
-            <p className="text-xl text-muted-foreground">
-              Trusted by thousands of tennis enthusiasts worldwide
+          <div className="text-center mb-20">
+            <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-6 text-gray-900">
+              Loved by Tennis Players
+              <br />
+              <span className="gradient-text-primary">Worldwide</span>
+            </h2>
+            <p className="text-xl text-gray-600">
+              Join thousands of satisfied players who found their perfect tennis partners
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
             {testimonials.map((testimonial, index) => (
-              <Card key={index} className="border-emerald-100 shadow-sm hover:shadow-md transition-all duration-300">
-                <CardContent className="p-8">
-                  <div className="flex items-center mb-4">
+              <Card key={index} className="glass-card floating-card border-0 shadow-2xl overflow-hidden">
+                <div className={`h-1 bg-gradient-to-r ${testimonial.gradient}`}></div>
+                <CardContent className="p-10">
+                  <div className="flex items-center mb-6">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
                     ))}
                   </div>
-                  <p className="text-muted-foreground mb-6 leading-relaxed italic">
+                  <p className="text-gray-700 mb-8 leading-relaxed text-lg italic">
                     "{testimonial.text}"
                   </p>
                   <div className="flex items-center">
-                    <div className="w-12 h-12 bg-emerald-500 rounded-full flex items-center justify-center text-white font-bold mr-4">
+                    <div className={`w-14 h-14 bg-gradient-to-r ${testimonial.gradient} rounded-full flex items-center justify-center text-white font-bold text-lg mr-4 shadow-lg`}>
                       {testimonial.avatar}
                     </div>
                     <div>
-                      <div className="font-semibold">{testimonial.name}</div>
-                      <div className="text-sm text-muted-foreground">{testimonial.title}</div>
+                      <div className="font-bricolage font-semibold text-lg text-gray-900">{testimonial.name}</div>
+                      <div className="text-gray-600">{testimonial.title}</div>
                     </div>
                   </div>
                 </CardContent>
@@ -264,22 +332,36 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24 bg-emerald-500 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-6">Ready to Find Your Perfect Tennis Partner?</h2>
-          <p className="text-xl opacity-90 mb-8 max-w-2xl mx-auto">
-            Join thousands of tennis players who are already using CourtMate to improve their game and meet new people.
+      {/* CTA Section - Dynamic Design */}
+      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.1"%3E%3Ccircle cx="30" cy="30" r="2"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-float"></div>
+        <div className="absolute bottom-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
+        
+        <div className="container mx-auto px-4 text-center relative">
+          <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-8 text-white text-shadow">
+            Ready to Transform Your
+            <br />
+            Tennis Journey?
+          </h2>
+          <p className="text-xl text-emerald-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Join thousands of tennis enthusiasts who are already using CourtMate to find amazing partners, 
+            improve their skills, and build lasting tennis friendships.
           </p>
-          <Button 
-            size="lg" 
-            variant="secondary"
-            className="px-8 py-6 text-lg font-medium bg-white text-emerald-500 hover:bg-gray-50"
-            onClick={handleGetStarted}
-          >
-            Start Playing Today
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={handleGetStarted}
+              className="px-12 py-6 text-xl font-semibold bg-white text-emerald-600 hover:bg-gray-50 shadow-2xl transform hover:scale-105 transition-all duration-300"
+            >
+              <Play className="mr-3 h-6 w-6" />
+              Start Playing Today
+            </Button>
+            <p className="text-emerald-100 font-medium">
+              Free to join • No credit card required
+            </p>
+          </div>
         </div>
       </section>
 
