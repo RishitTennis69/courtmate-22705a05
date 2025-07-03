@@ -59,8 +59,9 @@ const PlayerStatsModal = ({ isOpen, onClose, opponentId, opponentName }: PlayerS
 
       if (headToHeadError) throw headToHeadError;
 
-      setPlayerStats(playerStatsData);
-      setHeadToHeadStats(headToHeadData);
+      // Type the returned JSON data properly
+      setPlayerStats(playerStatsData as PlayerStats);
+      setHeadToHeadStats(headToHeadData as HeadToHeadStats);
     } catch (error) {
       console.error('Error fetching stats:', error);
     } finally {
