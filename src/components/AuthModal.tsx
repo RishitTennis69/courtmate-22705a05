@@ -28,10 +28,15 @@ const AuthModal = ({ isOpen, onClose, mode, onModeChange }: AuthModalProps) => {
     setLoading(true);
     
     try {
+      // Different redirect URLs based on mode
+      const redirectUrl = mode === 'signup' 
+        ? 'https://courtmate.lovable.app/onboarding'
+        : 'https://courtmate.lovable.app/dashboard';
+      
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: 'https://courtmate.lovable.app/dashboard',
+          emailRedirectTo: redirectUrl,
           data: mode === 'signup' ? {
             full_name: name,
           } : undefined
