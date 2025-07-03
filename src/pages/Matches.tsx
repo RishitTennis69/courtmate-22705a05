@@ -57,26 +57,55 @@ const Matches = () => {
 
   const fetchMatchRequests = async () => {
     try {
-      const { data, error } = await supabase
+      // First get the match requests
+      const { data: matchData, error: matchError } = await supabase
         .from('match_requests')
-        .select(`
-          *,
-          requester:user_profiles!requester_id(
-            full_name,
-            profile_image_url,
-            current_rating
-          ),
-          requested:user_profiles!requested_id(
-            full_name,
-            profile_image_url,
-            current_rating
-          )
-        `)
+        .select('*')
         .or(`requester_id.eq.${user?.id},requested_id.eq.${user?.id}`)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setMatchRequests(data || []);
+      if (matchError) throw matchError;
+
+      if (!matchData || matchData.length === 0) {
+        setMatchRequests([]);
+        return;
+      }
+
+      // Get unique user IDs to fetch their profiles
+      const userIds = [...new Set([
+        ...matchData.map(match => match.requester_id),
+        ...matchData.map(match => match.requested_id)
+      ])];
+
+      // Fetch user profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('user_profiles')
+        .select('id, full_name, profile_image_url, current_rating')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Combine the data
+      const combinedMatches = matchData.map(match => {
+        const requester = profilesData?.find(p => p.id === match.requester_id);
+        const requested = profilesData?.find(p => p.id === match.requested_id);
+        
+        return {
+          ...match,
+          requester: requester || {
+            full_name: 'Unknown Player',
+            profile_image_url: '',
+            current_rating: 3.0
+          },
+          requested: requested || {
+            full_name: 'Unknown Player',
+            profile_image_url: '',
+            current_rating: 3.0
+          }
+        };
+      });
+
+      setMatchRequests(combinedMatches);
     } catch (error) {
       console.error('Error fetching match requests:', error);
       toast({

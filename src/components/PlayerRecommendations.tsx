@@ -39,25 +39,49 @@ const PlayerRecommendations = () => {
 
   const fetchRecommendations = async () => {
     try {
-      const { data, error } = await supabase
+      // First get the recommendations
+      const { data: recommendationsData, error: recommendationsError } = await supabase
         .from('player_recommendations')
-        .select(`
-          *,
-          player:user_profiles!recommended_player_id(
-            full_name,
-            age,
-            location,
-            current_rating,
-            playing_style,
-            profile_image_url
-          )
-        `)
+        .select('*')
         .eq('user_id', user?.id)
         .gt('expires_at', new Date().toISOString())
         .order('recommendation_score', { ascending: false });
 
-      if (error) throw error;
-      setRecommendations(data || []);
+      if (recommendationsError) throw recommendationsError;
+
+      if (!recommendationsData || recommendationsData.length === 0) {
+        setRecommendations([]);
+        return;
+      }
+
+      // Get the player IDs to fetch their profiles
+      const playerIds = recommendationsData.map(rec => rec.recommended_player_id);
+
+      // Fetch user profiles for the recommended players
+      const { data: playersData, error: playersError } = await supabase
+        .from('user_profiles')
+        .select('id, full_name, age, location, current_rating, playing_style, profile_image_url')
+        .in('id', playerIds);
+
+      if (playersError) throw playersError;
+
+      // Combine the data
+      const combinedRecommendations = recommendationsData.map(rec => {
+        const player = playersData?.find(p => p.id === rec.recommended_player_id);
+        return {
+          ...rec,
+          player: player || {
+            full_name: 'Unknown Player',
+            age: 0,
+            location: 'Unknown',
+            current_rating: 3.0,
+            playing_style: 'all-court',
+            profile_image_url: ''
+          }
+        };
+      });
+
+      setRecommendations(combinedRecommendations);
     } catch (error) {
       console.error('Error fetching recommendations:', error);
       toast({
