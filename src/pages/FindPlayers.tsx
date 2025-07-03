@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Slider } from "@/components/ui/slider"
+import LocationAutocomplete from "@/components/LocationAutocomplete"
 
 // Mock data for demonstration
 const mockPlayers = [
@@ -105,16 +106,12 @@ export default function FindPlayers() {
 
             <div>
               <label className="text-sm font-medium mb-2 block">Location</label>
-              <Select value={selectedLocation} onValueChange={setSelectedLocation}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select location" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="central-park">Central Park</SelectItem>
-                  <SelectItem value="riverside">Riverside Club</SelectItem>
-                  <SelectItem value="downtown">Downtown Courts</SelectItem>
-                </SelectContent>
-              </Select>
+              <LocationAutocomplete
+                value={selectedLocation}
+                onChange={(location) => setSelectedLocation(location)}
+                placeholder="Search courts or areas..."
+                className="w-full"
+              />
             </div>
 
             <div>
