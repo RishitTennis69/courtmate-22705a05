@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import { Check } from "lucide-react";
 
 interface QuizQuestion {
   id: number;
@@ -169,18 +168,32 @@ const SkillQuiz = ({ onQuizComplete }: SkillQuizProps) => {
           <CardTitle className="text-xl">{question.question}</CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={selectedAnswer} onValueChange={handleAnswerSelect}>
-            <div className="space-y-4">
-              {question.options.map((option) => (
-                <div key={option.value} className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50">
-                  <RadioGroupItem value={option.value} id={option.value} />
-                  <Label htmlFor={option.value} className="flex-1 cursor-pointer text-base">
-                    {option.label}
-                  </Label>
+          <div className="space-y-3">
+            {question.options.map((option) => (
+              <div 
+                key={option.value} 
+                className={`flex items-center space-x-3 p-4 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:bg-emerald-50/30 hover:border-emerald-400 ${
+                  selectedAnswer === option.value 
+                    ? 'border-emerald-500 bg-emerald-50/50' 
+                    : 'border-gray-200'
+                }`}
+                onClick={() => handleAnswerSelect(option.value)}
+              >
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                  selectedAnswer === option.value 
+                    ? 'border-emerald-500 bg-emerald-500' 
+                    : 'border-gray-300'
+                }`}>
+                  {selectedAnswer === option.value && (
+                    <Check className="w-3 h-3 text-white" />
+                  )}
                 </div>
-              ))}
-            </div>
-          </RadioGroup>
+                <Label className="flex-1 cursor-pointer text-base font-medium text-gray-900">
+                  {option.label}
+                </Label>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
