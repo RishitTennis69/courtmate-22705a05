@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -366,9 +367,15 @@ const Index = () => {
               <Play className="mr-3 h-6 w-6" />
               Start Playing Today
             </Button>
-            <p className="text-emerald-100 font-medium">
-              Free to join • No credit card required
-            </p>
+            <div className="flex flex-col items-center gap-2">
+              <Badge className="bg-white/20 text-white px-6 py-3 text-lg font-bold border-2 border-white/30 backdrop-blur-sm shadow-xl">
+                <CheckCircle className="mr-2 h-5 w-5" />
+                FREE TO JOIN
+              </Badge>
+              <p className="text-emerald-100 font-medium text-lg">
+                No credit card required
+              </p>
+            </div>
           </div>
         </div>
       </section>
