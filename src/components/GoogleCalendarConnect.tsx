@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, CheckCircle, Loader2, AlertCircle, X } from "lucide-react";
-import { googleCalendarService } from "@/services/googleCalendar";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,10 +24,34 @@ const GoogleCalendarConnect = ({ onConnectionChange }: GoogleCalendarConnectProp
     }
   }, [user]);
 
+  useEffect(() => {
+    // Listen for OAuth success messages from popup
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+        setIsConnected(true);
+        setIsConnecting(false);
+        onConnectionChange?.(true);
+        toast({
+          title: "Calendar Connected",
+          description: "Your Google Calendar has been successfully connected!",
+        });
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, [onConnectionChange, toast]);
+
   const checkConnectionStatus = async () => {
     try {
       setIsChecking(true);
-      const connected = await googleCalendarService.checkAuthStatus();
+      const { data: profile } = await supabase
+        .from('user_profiles')
+        .select('google_calendar_connected')
+        .eq('id', user?.id)
+        .single();
+
+      const connected = profile?.google_calendar_connected || false;
       setIsConnected(connected);
       onConnectionChange?.(connected);
     } catch (error) {
@@ -41,43 +64,61 @@ const GoogleCalendarConnect = ({ onConnectionChange }: GoogleCalendarConnectProp
   const handleConnect = async () => {
     setIsConnecting(true);
     try {
-      const success = await googleCalendarService.initializeAuth();
-      if (success) {
-        setIsConnected(true);
-        onConnectionChange?.(true);
-        toast({
-          title: "Calendar Connected",
-          description: "Your Google Calendar has been successfully connected!",
-        });
-      } else {
-        throw new Error("Failed to connect to Google Calendar");
+      const { data, error } = await supabase.functions.invoke('google-auth-url');
+
+      if (error) throw error;
+
+      // Open Google auth in popup window
+      const popup = window.open(
+        data.authUrl,
+        'google-auth',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups and try again.');
       }
+
+      // Check if popup was closed manually
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
+          setIsConnecting(false);
+        }
+      }, 1000);
+
     } catch (error) {
       console.error('Connection error:', error);
+      setIsConnecting(false);
       toast({
         title: "Connection Failed",
-        description: "Failed to connect to Google Calendar. Please try again.",
+        description: error.message || "Failed to connect to Google Calendar. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setIsConnecting(false);
     }
   };
 
   const handleDisconnect = async () => {
     try {
       setIsConnecting(true);
-      const success = await googleCalendarService.disconnectCalendar();
-      if (success) {
-        setIsConnected(false);
-        onConnectionChange?.(false);
-        toast({
-          title: "Calendar Disconnected",
-          description: "Your Google Calendar has been disconnected.",
-        });
-      } else {
-        throw new Error("Failed to disconnect calendar");
-      }
+      const { error } = await supabase
+        .from('user_profiles')
+        .update({
+          google_calendar_connected: false,
+          google_calendar_token: null,
+          google_calendar_refresh_token: null,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user?.id);
+
+      if (error) throw error;
+
+      setIsConnected(false);
+      onConnectionChange?.(false);
+      toast({
+        title: "Calendar Disconnected",
+        description: "Your Google Calendar has been disconnected.",
+      });
     } catch (error) {
       console.error('Disconnection error:', error);
       toast({

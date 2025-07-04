@@ -12,6 +12,7 @@ import Circles from "./pages/Circles";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import Onboarding from "./pages/Onboarding";
+import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./components/ProtectedRoute";
 import ProfileCompletionCheck from "./components/ProfileCompletionCheck";
@@ -39,6 +40,7 @@ function App() {
           <div className="min-h-screen bg-background">
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/onboarding" element={
                 <ProtectedRoute>
                   <Onboarding />

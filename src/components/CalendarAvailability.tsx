@@ -30,6 +30,20 @@ const CalendarAvailability = ({ onAvailabilitySet }: CalendarAvailabilityProps) 
     checkCalendarConnection();
   }, []);
 
+  useEffect(() => {
+    // Listen for OAuth success messages from popup
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+        setIsConnected(true);
+        setIsConnecting(false);
+        analyzeCalendarAvailability();
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
   const checkCalendarConnection = async () => {
     try {
       const { data: profile } = await supabase
@@ -47,30 +61,32 @@ const CalendarAvailability = ({ onAvailabilitySet }: CalendarAvailabilityProps) 
   const handleConnectCalendar = async () => {
     setIsConnecting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('google-auth-url', {
-        body: { scope: 'calendar' }
-      });
+      const { data, error } = await supabase.functions.invoke('google-auth-url');
 
       if (error) throw error;
 
-      // Open Google auth in new window
-      const authWindow = window.open(data.authUrl, '_blank', 'width=500,height=600');
-      
-      // Poll for completion
-      const pollForCompletion = setInterval(async () => {
-        if (authWindow?.closed) {
-          clearInterval(pollForCompletion);
-          await checkCalendarConnection();
-          if (isConnected) {
-            await analyzeCalendarAvailability();
-          }
+      // Open Google auth in popup window
+      const popup = window.open(
+        data.authUrl,
+        'google-auth',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      );
+
+      if (!popup) {
+        throw new Error('Popup blocked. Please allow popups and try again.');
+      }
+
+      // Check if popup was closed manually
+      const checkClosed = setInterval(() => {
+        if (popup.closed) {
+          clearInterval(checkClosed);
           setIsConnecting(false);
         }
       }, 1000);
 
       toast({
         title: "Google Calendar",
-        description: "Please complete the authorization in the new window.",
+        description: "Please complete the authorization in the popup window.",
       });
     } catch (error) {
       console.error('Error connecting calendar:', error);

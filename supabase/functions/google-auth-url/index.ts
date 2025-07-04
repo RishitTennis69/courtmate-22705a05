@@ -13,13 +13,13 @@ serve(async (req) => {
 
   try {
     const GOOGLE_OAUTH_CLIENT_ID = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID')
-    const redirectUri = `${req.headers.get('origin')}/auth/callback`
+    const origin = req.headers.get('origin') || 'https://courtmate.lovable.app'
     
     const params = new URLSearchParams({
       client_id: GOOGLE_OAUTH_CLIENT_ID!,
-      redirect_uri: redirectUri,
+      redirect_uri: `${origin}/auth/callback`,
       response_type: 'code',
-      scope: 'https://www.googleapis.com/auth/calendar.readonly',
+      scope: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/calendar.events',
       access_type: 'offline',
       prompt: 'consent'
     })
