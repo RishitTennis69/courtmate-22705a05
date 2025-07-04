@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +22,16 @@ const Index = () => {
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
+
+  const scrollToSection = (targetId: string) => {
     const element = document.getElementById(targetId);
     if (element) {
       element.scrollIntoView({
@@ -203,10 +214,7 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleSmoothScroll(e, 'how-it-works');
-                }}
+                onClick={() => scrollToSection('how-it-works')}
                 className="px-10 py-6 text-lg font-medium border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300"
               >
                 <Clock className="mr-2 h-5 w-5" />
