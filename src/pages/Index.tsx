@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +17,17 @@ const Index = () => {
   const handleSignIn = () => {
     setAuthMode('signin');
     setShowAuthModal(true);
+  };
+
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      element.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
   };
 
   const features = [
@@ -114,13 +124,25 @@ const Index = () => {
             
             {/* Navigation Links for larger screens */}
             <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4">
+              <a 
+                href="#features" 
+                onClick={(e) => handleSmoothScroll(e, 'features')}
+                className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4"
+              >
                 Features
               </a>
-              <a href="#how-it-works" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4">
+              <a 
+                href="#how-it-works" 
+                onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+                className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4"
+              >
                 How it Works
               </a>
-              <a href="#testimonials" className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4">
+              <a 
+                href="#testimonials" 
+                onClick={(e) => handleSmoothScroll(e, 'testimonials')}
+                className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4"
+              >
                 Reviews
               </a>
             </div>
@@ -181,6 +203,10 @@ const Index = () => {
               <Button 
                 variant="outline" 
                 size="lg"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSmoothScroll(e, 'how-it-works');
+                }}
                 className="px-10 py-6 text-lg font-medium border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300"
               >
                 <Clock className="mr-2 h-5 w-5" />
@@ -334,7 +360,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section - Full Width */}
-      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden w-full">
+      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
             <g fill="none" fillRule="evenodd">
@@ -367,14 +393,19 @@ const Index = () => {
               <Play className="mr-3 h-6 w-6" />
               Start Playing Today
             </Button>
-            <div className="flex flex-col items-center gap-2">
-              <Badge className="bg-white/20 text-white px-6 py-3 text-lg font-bold border-2 border-white/30 backdrop-blur-sm shadow-xl">
-                <CheckCircle className="mr-2 h-5 w-5" />
+            <div className="flex flex-col sm:flex-row items-center gap-6">
+              <Badge className="bg-white/20 text-white px-8 py-4 text-xl font-bold border-2 border-white/30 backdrop-blur-sm shadow-2xl animate-pulse">
+                <CheckCircle className="mr-3 h-6 w-6" />
                 FREE TO JOIN
               </Badge>
-              <p className="text-emerald-100 font-medium text-lg">
-                No credit card required
-              </p>
+              <div className="text-center sm:text-left">
+                <p className="text-emerald-100 font-semibold text-xl">
+                  No credit card required
+                </p>
+                <p className="text-emerald-200 text-lg">
+                  Start connecting instantly
+                </p>
+              </div>
             </div>
           </div>
         </div>
