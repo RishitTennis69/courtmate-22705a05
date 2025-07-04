@@ -332,8 +332,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section - Expanded to fill more space */}
-      <section className="py-32 lg:py-48 xl:py-56 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden min-h-[60vh]">
+      {/* CTA Section - Dynamic Design */}
+      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden">
         <div className="absolute inset-0 opacity-20">
           <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
             <g fill="none" fillRule="evenodd">
@@ -346,31 +346,29 @@ const Index = () => {
         <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
         
-        <div className="container mx-auto px-4 text-center relative flex items-center justify-center min-h-[60vh]">
-          <div>
-            <h2 className="font-bricolage text-4xl md:text-6xl lg:text-7xl font-bold mb-8 text-white text-shadow">
-              Ready to Transform Your
-              <br />
-              Tennis Journey?
-            </h2>
-            <p className="text-xl md:text-2xl text-emerald-100 mb-12 max-w-4xl mx-auto leading-relaxed">
-              Join thousands of tennis enthusiasts who are already using CourtMate to find amazing partners, 
-              improve their skills, and build lasting tennis friendships.
+        <div className="container mx-auto px-4 text-center relative">
+          <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-8 text-white text-shadow">
+            Ready to Transform Your
+            <br />
+            Tennis Journey?
+          </h2>
+          <p className="text-xl text-emerald-100 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Join thousands of tennis enthusiasts who are already using CourtMate to find amazing partners, 
+            improve their skills, and build lasting tennis friendships.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <Button 
+              size="lg" 
+              variant="secondary"
+              onClick={handleGetStarted}
+              className="px-12 py-6 text-xl font-semibold bg-white text-emerald-600 hover:bg-gray-50 shadow-2xl transform hover:scale-105 transition-all duration-300"
+            >
+              <Play className="mr-3 h-6 w-6" />
+              Start Playing Today
+            </Button>
+            <p className="text-emerald-100 font-medium">
+              Free to join • No credit card required
             </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Button 
-                size="lg" 
-                variant="secondary"
-                onClick={handleGetStarted}
-                className="px-12 py-6 text-xl font-semibold bg-white text-emerald-600 hover:bg-gray-50 shadow-2xl transform hover:scale-105 transition-all duration-300"
-              >
-                <Play className="mr-3 h-6 w-6" />
-                Start Playing Today
-              </Button>
-              <p className="text-emerald-100 font-medium">
-                Free to join • No credit card required
-              </p>
-            </div>
           </div>
         </div>
       </section>
