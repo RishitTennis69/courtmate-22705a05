@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info } from "lucide-react";
+import { Info, CheckCircle } from "lucide-react";
 
 interface UTRConverterProps {
   onConversionComplete: (ntrpRating: number) => void;
@@ -13,6 +13,7 @@ interface UTRConverterProps {
 
 const UTRConverter = ({ onConversionComplete }: UTRConverterProps) => {
   const [utrRating, setUtrRating] = useState("");
+  const [convertedNtrp, setConvertedNtrp] = useState<number | null>(null);
   const [error, setError] = useState("");
 
   const convertUTRToNTRP = (utr: number): number => {
@@ -48,7 +49,13 @@ const UTRConverter = ({ onConversionComplete }: UTRConverterProps) => {
     const ntrp = convertUTRToNTRP(utr);
     // Round to 1 decimal place for precision
     const roundedNtrp = Math.round(ntrp * 10) / 10;
-    onConversionComplete(roundedNtrp);
+    setConvertedNtrp(roundedNtrp);
+  };
+
+  const handleConfirm = () => {
+    if (convertedNtrp) {
+      onConversionComplete(convertedNtrp);
+    }
   };
 
   return (
@@ -84,40 +91,67 @@ const UTRConverter = ({ onConversionComplete }: UTRConverterProps) => {
               onChange={(e) => {
                 setUtrRating(e.target.value);
                 setError("");
+                setConvertedNtrp(null);
               }}
               className="mt-2"
+              disabled={convertedNtrp !== null}
             />
             {error && (
               <p className="text-red-600 text-sm mt-1">{error}</p>
             )}
           </div>
 
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <h4 className="font-semibold mb-2">UTR to NTRP Reference (Progressive Scale):</h4>
-            <div className="grid grid-cols-2 gap-2 text-sm">
-              <div>UTR 1.0-2.0 → NTRP 2.5-3.0</div>
-              <div>UTR 2.0-3.0 → NTRP 3.0-3.5</div>
-              <div>UTR 3.0-4.0 → NTRP 3.5-4.0</div>
-              <div>UTR 4.0-5.0 → NTRP 4.0-4.5</div>
-              <div>UTR 5.0-6.0 → NTRP 4.5-5.0</div>
-              <div>UTR 6.0-7.0 → NTRP 5.0-5.5</div>
-              <div>UTR 7.0-8.0 → NTRP 5.5-6.0</div>
-              <div>UTR 8.0-9.0 → NTRP 6.0-6.5</div>
-              <div>UTR 9.0-10.0 → NTRP 6.5-7.0</div>
-              <div className="col-span-2 text-center font-medium">UTR 10+ → NTRP 7.0</div>
+          {convertedNtrp !== null && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle className="h-5 w-5 text-emerald-600" />
+                <h4 className="font-semibold text-emerald-800">Your NTRP Rating</h4>
+              </div>
+              <div className="text-center">
+                <div className="text-3xl font-bold text-emerald-700 mb-2">{convertedNtrp}</div>
+                <p className="text-sm text-emerald-600 mb-4">
+                  Based on your UTR rating of {utrRating}, your equivalent NTRP rating is {convertedNtrp}.
+                </p>
+                <Button 
+                  onClick={handleConfirm}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700"
+                >
+                  Confirm NTRP Rating
+                </Button>
+              </div>
             </div>
-            <p className="text-xs text-gray-600 mt-2">
-              *UTR difficulty increases progressively - higher UTR improvements represent exponentially greater skill development
-            </p>
-          </div>
+          )}
 
-          <Button
-            onClick={handleConvert}
-            disabled={!utrRating}
-            className="w-full bg-emerald-600 hover:bg-emerald-700"
-          >
-            Convert to NTRP
-          </Button>
+          {convertedNtrp === null && (
+            <>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-semibold mb-2">UTR to NTRP Reference (Progressive Scale):</h4>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>UTR 1.0-2.0 → NTRP 2.5-3.0</div>
+                  <div>UTR 2.0-3.0 → NTRP 3.0-3.5</div>
+                  <div>UTR 3.0-4.0 → NTRP 3.5-4.0</div>
+                  <div>UTR 4.0-5.0 → NTRP 4.0-4.5</div>
+                  <div>UTR 5.0-6.0 → NTRP 4.5-5.0</div>
+                  <div>UTR 6.0-7.0 → NTRP 5.0-5.5</div>
+                  <div>UTR 7.0-8.0 → NTRP 5.5-6.0</div>
+                  <div>UTR 8.0-9.0 → NTRP 6.0-6.5</div>
+                  <div>UTR 9.0-10.0 → NTRP 6.5-7.0</div>
+                  <div className="col-span-2 text-center font-medium">UTR 10+ → NTRP 7.0</div>
+                </div>
+                <p className="text-xs text-gray-600 mt-2">
+                  *UTR difficulty increases progressively - higher UTR improvements represent exponentially greater skill development
+                </p>
+              </div>
+
+              <Button
+                onClick={handleConvert}
+                disabled={!utrRating}
+                className="w-full bg-emerald-600 hover:bg-emerald-700"
+              >
+                Convert to NTRP
+              </Button>
+            </>
+          )}
         </CardContent>
       </Card>
     </div>
