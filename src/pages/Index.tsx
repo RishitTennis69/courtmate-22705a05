@@ -97,7 +97,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
+    <div className="min-h-screen bg-white">
       {/* Enhanced Navigation */}
       <nav className="sticky top-0 z-50 border-b bg-white/90 backdrop-blur-xl supports-[backdrop-filter]:bg-white/70 shadow-sm">
         <div className="container mx-auto px-4 py-3">
@@ -152,8 +152,7 @@ const Index = () => {
       </nav>
 
       {/* Hero Section - Premium Design */}
-      <section className="relative overflow-hidden py-20 lg:py-32">
-        <div className="absolute inset-0 bg-gradient-to-br from-emerald-50/50 via-white to-blue-50/30"></div>
+      <section className="relative overflow-hidden py-20 lg:py-32 bg-white">
         <div className="absolute top-20 left-10 w-32 h-32 bg-emerald-200/30 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-20 right-10 w-40 h-40 bg-blue-200/30 rounded-full blur-3xl animate-float" style={{animationDelay: '1s'}}></div>
         
@@ -212,7 +211,7 @@ const Index = () => {
       </section>
 
       {/* How It Works - Creative Design */}
-      <section id="how-it-works" className="py-24 bg-gradient-to-br from-white to-gray-50">
+      <section id="how-it-works" className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <Badge className="mb-6 bg-blue-100 text-blue-700 px-4 py-2 font-medium">
@@ -272,7 +271,7 @@ const Index = () => {
       </section>
 
       {/* Features - Modern Grid */}
-      <section id="features" className="py-24 bg-gradient-to-br from-gray-50 to-white">
+      <section id="features" className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <Badge className="mb-6 bg-purple-100 text-purple-700 px-4 py-2 font-medium">
@@ -311,7 +310,7 @@ const Index = () => {
       </section>
 
       {/* Testimonials - Premium Layout */}
-      <section id="testimonials" className="py-24 bg-gradient-to-br from-white to-emerald-50/30">
+      <section id="testimonials" className="py-24 bg-white">
         <div className="container mx-auto px-4">
           <div className="text-center mb-20">
             <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-6 text-gray-900">
