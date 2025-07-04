@@ -1,7 +1,7 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { Check } from "lucide-react";
 
@@ -188,9 +188,9 @@ const SkillQuiz = ({ onQuizComplete }: SkillQuizProps) => {
                     <Check className="w-3 h-3 text-white" />
                   )}
                 </div>
-                <Label className="flex-1 cursor-pointer text-base font-medium text-gray-900">
+                <span className="flex-1 text-base font-medium text-gray-900">
                   {option.label}
-                </Label>
+                </span>
               </div>
             ))}
           </div>

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -216,28 +215,48 @@ const Onboarding = () => {
               <p className="text-gray-600 text-lg">Choose how you'd like to determine your skill level</p>
             </div>
             
-            <RadioGroup value={formData.ratingMethod} onValueChange={(value) => updateFormData("ratingMethod", value)}>
-              <div className="space-y-4">
-                <div className="flex items-center space-x-3 p-6 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
-                  <RadioGroupItem value="quiz" id="quiz" />
-                  <div className="flex-1">
-                    <Label htmlFor="quiz" className="font-semibold text-gray-900 cursor-pointer text-lg">
-                      Take NTRP Skill Quiz
-                    </Label>
-                    <p className="text-sm text-gray-600">Answer questions about your tennis skills and experience</p>
-                  </div>
+            <div className="space-y-4">
+              <div 
+                className={`flex items-center space-x-3 p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-50/30 ${
+                  formData.ratingMethod === "quiz" ? 'border-emerald-500 bg-emerald-50/50' : 'border-gray-200'
+                }`}
+                onClick={() => updateFormData("ratingMethod", "quiz")}
+              >
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                  formData.ratingMethod === "quiz" ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
+                }`}>
+                  {formData.ratingMethod === "quiz" && (
+                    <CheckCircle className="w-3 h-3 text-white" />
+                  )}
                 </div>
-                <div className="flex items-center space-x-3 p-6 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
-                  <RadioGroupItem value="utr" id="utr" />
-                  <div className="flex-1">
-                    <Label htmlFor="utr" className="font-semibold text-gray-900 cursor-pointer text-lg">
-                      Convert UTR Rating
-                    </Label>
-                    <p className="text-sm text-gray-600">I already have a UTR rating to convert to NTRP</p>
-                  </div>
+                <div className="flex-1">
+                  <Label className="font-semibold text-gray-900 cursor-pointer text-lg">
+                    Take NTRP Skill Quiz
+                  </Label>
+                  <p className="text-sm text-gray-600">Answer questions about your tennis skills and experience</p>
                 </div>
               </div>
-            </RadioGroup>
+              <div 
+                className={`flex items-center space-x-3 p-6 border-2 rounded-xl cursor-pointer transition-all duration-200 hover:border-emerald-500 hover:bg-emerald-50/30 ${
+                  formData.ratingMethod === "utr" ? 'border-emerald-500 bg-emerald-50/50' : 'border-gray-200'
+                }`}
+                onClick={() => updateFormData("ratingMethod", "utr")}
+              >
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                  formData.ratingMethod === "utr" ? 'border-emerald-500 bg-emerald-500' : 'border-gray-300'
+                }`}>
+                  {formData.ratingMethod === "utr" && (
+                    <CheckCircle className="w-3 h-3 text-white" />
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Label className="font-semibold text-gray-900 cursor-pointer text-lg">
+                    Convert UTR Rating
+                  </Label>
+                  <p className="text-sm text-gray-600">I already have a UTR rating to convert to NTRP</p>
+                </div>
+              </div>
+            </div>
           </div>
         );
 
