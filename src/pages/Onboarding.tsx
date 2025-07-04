@@ -1,4 +1,5 @@
 
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,6 @@ interface AvailabilitySlot {
 const Onboarding = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    name: "",
     age: "",
     location: "",
     availability: "",
@@ -50,7 +50,7 @@ const Onboarding = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const totalSteps = 6; // Reduced from 7 steps
+  const totalSteps = 5; // Reduced from 6 steps
   const progress = (currentStep / totalSteps) * 100;
 
   const handleNext = async () => {
@@ -92,7 +92,6 @@ const Onboarding = () => {
       const { error: profileError } = await supabase
         .from('user_profiles')
         .update({
-          full_name: formData.name,
           age: parseInt(formData.age),
           location: formData.location,
           current_rating: formData.ntrpRating,
@@ -137,8 +136,7 @@ const Onboarding = () => {
     { title: "Location", description: "Where do you play?", icon: MapPin, color: "from-emerald-400 to-teal-500" },
     { title: "Rating Method", description: "How to assess your skill?", icon: Target, color: "from-orange-400 to-red-500" },
     { title: "Skill Assessment", description: "Determine your NTRP level", icon: Trophy, color: "from-yellow-400 to-orange-500" },
-    { title: "Availability", description: "When do you play?", icon: Calendar, color: "from-green-400 to-blue-500" },
-    { title: "Complete", description: "Finish your profile", icon: CheckCircle, color: "from-emerald-400 to-green-500" }
+    { title: "Availability", description: "When do you play?", icon: Calendar, color: "from-green-400 to-blue-500" }
   ];
 
   const renderStepContent = () => {
@@ -155,16 +153,6 @@ const Onboarding = () => {
             </div>
             
             <div className="space-y-4">
-              <div>
-                <Label htmlFor="name" className="text-base font-medium text-gray-900">Full Name</Label>
-                <Input
-                  id="name"
-                  placeholder="Enter your full name"
-                  value={formData.name}
-                  onChange={(e) => updateFormData("name", e.target.value)}
-                  className="mt-2 h-12 text-lg border-2 border-gray-200 focus:border-emerald-500"
-                />
-              </div>
               <div>
                 <Label htmlFor="age" className="text-base font-medium text-gray-900">Age</Label>
                 <Input
@@ -271,42 +259,6 @@ const Onboarding = () => {
       case 5:
         return <CalendarAvailability onAvailabilitySet={handleAvailabilitySet} />;
 
-      case 6:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-r from-emerald-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <CheckCircle className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Profile Complete!</h2>
-              <p className="text-gray-600 text-lg">Ready to find your tennis partners?</p>
-            </div>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span className="font-medium">Name:</span>
-                    <span>{formData.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">NTRP Rating:</span>
-                    <Badge>{formData.ntrpRating}</Badge>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Location:</span>
-                    <span>{formData.location}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Availability Slots:</span>
-                    <span>{availabilitySlots.length} time slots</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        );
-
       default:
         return null;
     }
@@ -399,7 +351,7 @@ const Onboarding = () => {
             <Button
               onClick={handleNext}
               disabled={
-                (currentStep === 1 && (!formData.name || !formData.age)) ||
+                (currentStep === 1 && !formData.age) ||
                 (currentStep === 2 && !formData.location) ||
                 (currentStep === 3 && !formData.ratingMethod)
               }
@@ -416,3 +368,4 @@ const Onboarding = () => {
 };
 
 export default Onboarding;
+

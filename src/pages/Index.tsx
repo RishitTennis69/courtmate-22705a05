@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -79,7 +78,7 @@ const Index = () => {
     {
       number: "02",
       title: "Find Perfect Matches",
-      description: "Discover players who match your skill level, schedule, and playing style",
+      description: "Discover players who match your skill level, schedule, and availability",
       icon: Users,
       color: "bg-blue-500"
     },
@@ -143,13 +142,6 @@ const Index = () => {
                 Features
               </a>
               <a 
-                href="#how-it-works" 
-                onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
-                className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4"
-              >
-                How it Works
-              </a>
-              <a 
                 href="#testimonials" 
                 onClick={(e) => handleSmoothScroll(e, 'testimonials')}
                 className="text-gray-600 hover:text-emerald-600 font-medium transition-colors duration-200 hover:underline underline-offset-4"
@@ -210,15 +202,6 @@ const Index = () => {
               >
                 <Play className="mr-2 h-5 w-5" />
                 Start Playing Today
-              </Button>
-              <Button 
-                variant="outline" 
-                size="lg"
-                onClick={() => scrollToSection('how-it-works')}
-                className="px-10 py-6 text-lg font-medium border-2 border-gray-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-300"
-              >
-                <Clock className="mr-2 h-5 w-5" />
-                How It Works
               </Button>
             </div>
           </div>

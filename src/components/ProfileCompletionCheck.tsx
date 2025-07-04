@@ -1,4 +1,5 @@
 
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,6 @@ interface ProfileCompletionCheckProps {
 }
 
 interface UserProfile {
-  full_name: string | null;
   age: number | null;
   location: string | null;
   playing_style: string | null;
@@ -32,7 +32,7 @@ const ProfileCompletionCheck = ({ children }: ProfileCompletionCheckProps) => {
     try {
       const { data: profile, error } = await supabase
         .from('user_profiles')
-        .select('full_name, age, location, playing_style, current_rating')
+        .select('age, location, playing_style, current_rating')
         .eq('id', user?.id)
         .single();
 
@@ -40,9 +40,8 @@ const ProfileCompletionCheck = ({ children }: ProfileCompletionCheckProps) => {
         console.error('Error fetching profile:', error);
         setIsProfileComplete(false);
       } else {
-        // Check if all required fields are completed
+        // Check if all required fields are completed (removed full_name requirement)
         const isComplete = !!(
-          profile?.full_name &&
           profile?.age &&
           profile?.location &&
           profile?.playing_style &&
@@ -81,3 +80,4 @@ const ProfileCompletionCheck = ({ children }: ProfileCompletionCheckProps) => {
 };
 
 export default ProfileCompletionCheck;
+
