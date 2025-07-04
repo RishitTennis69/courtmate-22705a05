@@ -89,13 +89,6 @@ const Index = () => {
     }
   ];
 
-  const stats = [
-    { number: "10K+", label: "Active Players", icon: Users },
-    { number: "50K+", label: "Matches Played", icon: Trophy },
-    { number: "95%", label: "Match Success Rate", icon: CheckCircle },
-    { number: "4.9★", label: "User Rating", icon: Star }
-  ];
-
   return (
     <div className="min-h-screen bg-white">
       {/* Enhanced Navigation */}
@@ -175,7 +168,7 @@ const Index = () => {
               <span className="font-medium text-gray-800">Join the future of tennis networking.</span>
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16 animate-slide-up stagger-3">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-slide-up stagger-3">
               <Button 
                 size="lg" 
                 onClick={handleGetStarted}
@@ -192,19 +185,6 @@ const Index = () => {
                 <Clock className="mr-2 h-5 w-5" />
                 How It Works
               </Button>
-            </div>
-
-            {/* Stats Row */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 animate-slide-up stagger-4">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center">
-                  <div className="flex justify-center mb-2">
-                    <stat.icon className="h-6 w-6 text-emerald-500" />
-                  </div>
-                  <div className="font-bricolage text-3xl font-bold text-gray-900">{stat.number}</div>
-                  <div className="text-sm text-gray-600 font-medium">{stat.label}</div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
