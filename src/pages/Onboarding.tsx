@@ -41,8 +41,6 @@ const Onboarding = () => {
     name: "",
     age: "",
     location: "",
-    playingStyle: "",
-    experience: "",
     availability: "",
     goals: "",
     ntrpRating: 0,
@@ -53,7 +51,7 @@ const Onboarding = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  const totalSteps = 7; // Increased for new components
+  const totalSteps = 6; // Reduced from 7 steps
   const progress = (currentStep / totalSteps) * 100;
 
   const handleNext = async () => {
@@ -98,7 +96,6 @@ const Onboarding = () => {
           full_name: formData.name,
           age: parseInt(formData.age),
           location: formData.location,
-          playing_style: formData.playingStyle,
           current_rating: formData.ntrpRating,
           updated_at: new Date().toISOString()
         })
@@ -141,7 +138,6 @@ const Onboarding = () => {
     { title: "Location", description: "Where do you play?", icon: MapPin, color: "from-emerald-400 to-teal-500" },
     { title: "Rating Method", description: "How to assess your skill?", icon: Target, color: "from-orange-400 to-red-500" },
     { title: "Skill Assessment", description: "Determine your NTRP level", icon: Trophy, color: "from-yellow-400 to-orange-500" },
-    { title: "Playing Style", description: "Your tennis preferences", icon: Target, color: "from-purple-400 to-pink-500" },
     { title: "Availability", description: "When do you play?", icon: Calendar, color: "from-green-400 to-blue-500" },
     { title: "Complete", description: "Finish your profile", icon: CheckCircle, color: "from-emerald-400 to-green-500" }
   ];
@@ -254,43 +250,9 @@ const Onboarding = () => {
         return null;
 
       case 5:
-        return (
-          <div className="space-y-6">
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 bg-gradient-to-r from-purple-400 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Target className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="font-bricolage text-3xl font-bold text-gray-900 mb-2">Playing Style</h2>
-              <p className="text-gray-600 text-lg">What describes your tennis style best?</p>
-            </div>
-            
-            <RadioGroup value={formData.playingStyle} onValueChange={(value) => updateFormData("playingStyle", value)}>
-              <div className="space-y-3">
-                {[
-                  { value: "aggressive", label: "Aggressive Baseliner", desc: "Power shots from the baseline" },
-                  { value: "defensive", label: "Defensive Counter-Puncher", desc: "Strategic defensive play" },
-                  { value: "serve-volley", label: "Serve & Volley", desc: "Net-rushing style" },
-                  { value: "all-court", label: "All-Court Player", desc: "Versatile playing style" }
-                ].map((style) => (
-                  <div key={style.value} className="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-xl hover:border-emerald-500 hover:bg-emerald-50/30 transition-all duration-200">
-                    <RadioGroupItem value={style.value} id={style.value} />
-                    <div className="flex-1">
-                      <Label htmlFor={style.value} className="font-semibold text-gray-900 cursor-pointer">
-                        {style.label}
-                      </Label>
-                      <p className="text-sm text-gray-600">{style.desc}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </RadioGroup>
-          </div>
-        );
-
-      case 6:
         return <CalendarAvailability onAvailabilitySet={handleAvailabilitySet} />;
 
-      case 7:
+      case 6:
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
@@ -315,10 +277,6 @@ const Onboarding = () => {
                   <div className="flex justify-between">
                     <span className="font-medium">Location:</span>
                     <span>{formData.location}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="font-medium">Playing Style:</span>
-                    <span>{formData.playingStyle}</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="font-medium">Availability Slots:</span>
@@ -424,8 +382,7 @@ const Onboarding = () => {
               disabled={
                 (currentStep === 1 && (!formData.name || !formData.age)) ||
                 (currentStep === 2 && !formData.location) ||
-                (currentStep === 3 && !formData.ratingMethod) ||
-                (currentStep === 5 && !formData.playingStyle)
+                (currentStep === 3 && !formData.ratingMethod)
               }
               className="px-8 py-3 text-lg gradient-primary text-white shadow-lg hover:shadow-xl transition-all duration-300"
             >
