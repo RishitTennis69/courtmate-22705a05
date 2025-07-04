@@ -1,5 +1,4 @@
 
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -335,7 +334,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section - Full Width */}
-      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden">
+      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden w-full">
         <div className="absolute inset-0 opacity-20">
           <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
             <g fill="none" fillRule="evenodd">
@@ -348,7 +347,7 @@ const Index = () => {
         <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
         
-        <div className="text-center relative max-w-4xl mx-auto px-4">
+        <div className="px-4 text-center relative max-w-7xl mx-auto">
           <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-8 text-white text-shadow">
             Ready to Transform Your
             <br />
@@ -358,7 +357,7 @@ const Index = () => {
             Join thousands of tennis enthusiasts who are already using CourtMate to find amazing partners, 
             improve their skills, and build lasting tennis friendships.
           </p>
-          <div className="flex flex-col items-center gap-6">
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
             <Button 
               size="lg" 
               variant="secondary"
@@ -392,4 +391,3 @@ const Index = () => {
 };
 
 export default Index;
-
