@@ -28,7 +28,7 @@ const Index = () => {
     },
     {
       icon: Users,
-      title: "Vibrant Community",
+      title: "Vibrant Community", 
       description: "Join thousands of passionate tennis players and build lasting connections on and off the court",
       gradient: "from-blue-400 to-purple-500"
     },
@@ -55,7 +55,7 @@ const Index = () => {
       color: "bg-emerald-500"
     },
     {
-      number: "02", 
+      number: "02",
       title: "Find Perfect Matches",
       description: "Discover players who match your skill level, schedule, and playing style",
       icon: Users,
@@ -80,8 +80,8 @@ const Index = () => {
       gradient: "from-emerald-400 to-teal-500"
     },
     {
-      name: "Punj Agrawal", 
-      title: "State Level Champion",
+      name: "Punj Agrawal",
+      title: "State Level Champion", 
       rating: 5,
       text: "Finding the right tennis partners used to be impossible. CourtMate changed everything - now I play with amazing players every week!",
       avatar: "PA",
@@ -332,8 +332,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section - Dynamic Design */}
-      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden">
+      {/* CTA Section - Full Width */}
+      <section className="py-24 bg-gradient-to-br from-emerald-600 via-emerald-500 to-teal-500 relative overflow-hidden w-full">
         <div className="absolute inset-0 opacity-20">
           <svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg" className="w-full h-full">
             <g fill="none" fillRule="evenodd">
@@ -346,7 +346,7 @@ const Index = () => {
         <div className="absolute top-10 left-10 w-32 h-32 bg-white/10 rounded-full blur-3xl animate-float"></div>
         <div className="absolute bottom-10 right-10 w-40 h-40 bg-white/10 rounded-full blur-3xl animate-float" style={{animationDelay: '2s'}}></div>
         
-        <div className="container mx-auto px-4 text-center relative">
+        <div className="px-4 text-center relative max-w-7xl mx-auto">
           <h2 className="font-bricolage text-4xl md:text-6xl font-bold mb-8 text-white text-shadow">
             Ready to Transform Your
             <br />
