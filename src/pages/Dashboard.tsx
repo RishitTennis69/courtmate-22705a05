@@ -14,7 +14,8 @@ import {
   TrendingUp,
   Clock,
   MessageSquare,
-  Users as UsersIcon
+  Users as UsersIcon,
+  MessageSquare as MessagesIcon
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -55,6 +56,7 @@ const Dashboard = () => {
   const [upcomingMatches, setUpcomingMatches] = useState<any[]>([]);
   const [recentMatches, setRecentMatches] = useState<any[]>([]);
   const [myCircles, setMyCircles] = useState<any[]>([]);
+  const [recentMessages, setRecentMessages] = useState<any[]>([]);
 
   useEffect(() => {
     if (user) {
@@ -63,6 +65,7 @@ const Dashboard = () => {
       generateRecommendations();
       fetchDashboardMatches();
       fetchDashboardCircles();
+      fetchRecentMessages();
     }
   }, [user]);
 
@@ -163,6 +166,21 @@ const Dashboard = () => {
     }
   };
 
+  // Fetch recent messages
+  const fetchRecentMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .or(`sender_id.eq.${user?.id},recipient_id.eq.${user?.id}`)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setRecentMessages((data || []).slice(0, 3));
+    } catch (error) {
+      console.error('Error fetching recent messages:', error);
+    }
+  };
+
   if (isMobile) {
     return <MobileOptimizedDashboard />;
   }
@@ -179,17 +197,17 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col overflow-x-hidden">
       {/* Stylish Dashboard Header */}
       <div className="w-full py-10 px-4 md:px-0 flex flex-col items-center">
-        <h1 className="font-bricolage text-4xl md:text-5xl font-extrabold text-emerald-700 mb-2 drop-shadow-lg tracking-tight">Dashboard</h1>
+        <h1 className="font-bricolage text-4xl md:text-5xl font-bold text-black mb-2 drop-shadow-lg tracking-tight">Dashboard</h1>
         <p className="text-lg text-emerald-900/80 mb-4">Your tennis at a glance</p>
       </div>
 
-      <div className="container mx-auto px-4 pb-12 grid grid-cols-1 md:grid-cols-6 gap-8">
+      <div className="max-w-7xl mx-auto px-2 pb-12 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 w-full">
         {/* Featured Upcoming Matches Widget */}
-        <div className="md:col-span-3 flex flex-col">
-          <div className="glass-card rounded-3xl shadow-2xl border border-emerald-200/60 backdrop-blur-lg bg-white/60 p-6 mb-8 relative overflow-hidden">
+        <div className="flex flex-col h-full">
+          <div className="glass-card flex-1 h-full rounded-3xl shadow-2xl border border-emerald-200/60 backdrop-blur-lg bg-white/60 p-8 mb-8 relative overflow-hidden">
             <div className="absolute -top-8 -right-8 opacity-10 text-emerald-400 text-[8rem] pointer-events-none select-none">
               <Calendar className="w-32 h-32" />
             </div>
@@ -217,9 +235,9 @@ const Dashboard = () => {
         </div>
 
         {/* Staggered Grid for Other Widgets */}
-        <div className="md:col-span-3 flex flex-col gap-8">
+        <div className="flex flex-col gap-10 h-full xl:col-span-2">
           {/* Recent Match History Widget */}
-          <div className="glass-card rounded-3xl shadow-xl border border-emerald-200/40 backdrop-blur-lg bg-white/50 p-6 relative overflow-hidden">
+          <div className="glass-card flex-1 h-full rounded-3xl shadow-xl border border-emerald-200/40 backdrop-blur-lg bg-white/50 p-8 relative overflow-hidden">
             <div className="absolute -top-6 -right-6 opacity-10 text-emerald-400 text-[6rem] pointer-events-none select-none">
               <Trophy className="w-24 h-24" />
             </div>
@@ -246,29 +264,26 @@ const Dashboard = () => {
             </CardContent>
           </div>
 
-          {/* My Circles Widget */}
-          <div className="glass-card rounded-3xl shadow-xl border border-emerald-200/40 backdrop-blur-lg bg-white/50 p-6 relative overflow-hidden">
-            <div className="absolute -top-6 -right-6 opacity-10 text-emerald-400 text-[6rem] pointer-events-none select-none">
-              <UsersIcon className="w-24 h-24" />
+          {/* Messages Widget */}
+          <div className="glass-card flex-1 h-full rounded-3xl shadow-xl border border-emerald-200/40 backdrop-blur-lg bg-white/50 p-6 relative overflow-hidden">
+            <div className="absolute -top-6 -right-6 opacity-10 text-emerald-400 text-[5rem] pointer-events-none select-none">
+              <MessagesIcon className="w-20 h-20" />
             </div>
             <CardHeader className="bg-transparent p-0 mb-4">
               <CardTitle className="flex items-center gap-2 text-emerald-700 text-xl">
-                <UsersIcon className="h-5 w-5 text-emerald-500" /> My Circles
+                <MessagesIcon className="h-5 w-5 text-emerald-500" /> Messages
               </CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              {myCircles.length === 0 ? (
-                <p className="text-gray-500">You are not a member of any circles yet.</p>
+              {recentMessages.length === 0 ? (
+                <p className="text-gray-500">No recent messages.</p>
               ) : (
                 <ul className="space-y-4">
-                  {myCircles.map((circle, idx) => (
-                    <li key={circle.id || idx} className="border-b border-emerald-100 pb-2 last:border-b-0">
-                      <div className="font-semibold text-emerald-800 flex items-center gap-2">
-                        <UsersIcon className="h-4 w-4 text-emerald-600" />
-                        {circle.name}
-                      </div>
-                      <div className="text-sm text-emerald-700">{circle.description}</div>
-                      <div className="text-xs text-emerald-400">{circle.location || "No location specified"}</div>
+                  {recentMessages.map((msg, idx) => (
+                    <li key={msg.id || idx} className="border-b border-emerald-100 pb-2 last:border-b-0">
+                      <div className="font-semibold text-emerald-800">{msg.subject || "No Subject"}</div>
+                      <div className="text-sm text-emerald-700">{msg.body?.slice(0, 60) || "No content"}</div>
+                      <div className="text-xs text-emerald-400">{new Date(msg.created_at).toLocaleString()}</div>
                     </li>
                   ))}
                 </ul>
@@ -276,15 +291,13 @@ const Dashboard = () => {
             </CardContent>
           </div>
 
-          {/* AI Recommendations Widget */}
-          <div className="glass-card rounded-3xl shadow-xl border border-emerald-200/40 backdrop-blur-lg bg-white/50 p-6 relative overflow-hidden">
+          {/* AI Recommendations Widget (borderless) */}
+          <div className="flex-1 h-full p-8 relative overflow-visible">
             <div className="absolute -top-6 -right-6 opacity-10 text-emerald-400 text-[6rem] pointer-events-none select-none">
               <Star className="w-24 h-24" />
             </div>
             <CardHeader className="bg-transparent p-0 mb-4">
-              <CardTitle className="flex items-center gap-2 text-emerald-700 text-xl">
-                <Star className="h-5 w-5 text-emerald-500" /> AI Recommendations
-              </CardTitle>
+              {/* Removed the CardTitle with 'AI Recommendations' */}
             </CardHeader>
             <CardContent className="p-0">
               <EnhancedPlayerRecommendations />
